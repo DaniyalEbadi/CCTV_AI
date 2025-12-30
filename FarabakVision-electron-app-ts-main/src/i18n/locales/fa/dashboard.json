@@ -1,0 +1,66 @@
+{
+  "userCard": {
+    "connectionStatus": "وضعیت اتصال:",
+    "ipAddress": "آدرس آی‌پی:",
+    "macAddress": "MAC آدرس:",
+    "osInfo": "سیستم عامل:",
+    "connectedSince": "مدت زمان اتصال:",
+    "fetchFailed": "خطا در نمایش اطلاعات کاربر.",
+    "loadingData": "در حال بارگذاری اطلاعات کاربر..."
+  },
+  "cameraCountCard": {
+    "title": "تعداد دوربین‌ها",
+    "connectedCameras": "دوربین‌های متصل:",
+    "activeCameras": "دوربین‌های فعال:",
+    "inactiveCameras": "دوربین‌های غیرفعال:",
+    "fetchFailed": "خطا در نمایش اطلاعات دوربین.",
+    "loadingData": "در حال بارگذاری اطلاعات دوربین...",
+    "noData": "داده‌ای موجود نیست"
+  },
+  "cameraBrandsCard": {
+    "title": "برندهای متصل",
+    "loading": "در حال بارگذاری...",
+    "errorPrefix": "خطا:",
+    "fetchFailed": "خطا در دریافت اطلاعات برندهای دوربین.",
+    "empty": "هیچ برندی یافت نشد",
+    "totalBrands": "مجموع برندها:",
+    "totalCameras": "مجموع دوربین‌ها:"
+  },
+  "supportCard": {
+    "title": "پشتیبانی",
+    "subtitle": "سوالی دارید؟ ما اینجا برای کمک هستیم.",
+    "supportStatusLabel": "وضعیت پشتیبانی:",
+    "supportAvailable": "دسترس‌پذیر",
+    "channelsTitle": "کانال‌های ارتباطی:",
+    "email": "ایمیل",
+    "phone": "تلفن",
+    "liveChat": "چت زنده",
+    "liveChatTime": "روزانه ۸ تا ۱۸",
+    "button": "تماس با پشتیبانی"
+  },
+  "motionStatsCard": {
+    "title": "آمار تشخیص حرکت دوربین‌ها",
+    "loading": "در حال بارگذاری...",
+    "errorPrefix": "خطا:",
+    "fetchFailed": "خطا در دریافت آمار تشخیص حرکت.",
+    "empty": "داده‌ای برای تشخیص حرکت موجود نیست",
+    "totalEvents": "مجموع رویدادها",
+    "peakEvents": "اوج رویدادها",
+    "timeRange": "دوره زمانی",
+    "timeRangeValue": "۲۴ ساعت",
+    "motionEvents": "رویدادهای حرکتی"
+  },
+  "quickActionsCard": {
+    "title": "عملیات اصلی",
+    "loading": "در حال بارگذاری...",
+    "errorPrefix": "خطا:",
+    "fetchFailed": "خطا در دریافت عملیات سریع.",
+    "empty": "هیچ عملیات سریعی در دسترس نیست",
+    "actions": {
+      "add-new-camera": "افزودن دوربین جدید",
+      "add-new-user": "افزودن کاربر جدید",
+      "change-theme": "تغییر تم",
+      "app-info": "اطلاعات برنامه"
+    }
+  }
+}

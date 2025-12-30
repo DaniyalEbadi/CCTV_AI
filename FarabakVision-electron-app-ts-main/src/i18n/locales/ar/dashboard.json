@@ -1,0 +1,66 @@
+{
+  "userCard": {
+    "connectionStatus": "حالة الاتصال:",
+    "ipAddress": "عنوان IP:",
+    "macAddress": "عنوان MAC:",
+    "osInfo": "نظام التشغيل:",
+    "connectedSince": "متصل منذ:",
+    "fetchFailed": "فشل في عرض معلومات المستخدم.",
+    "loadingData": "جارٍ تحميل معلومات المستخدم..."
+  },
+  "cameraCountCard": {
+    "title": "عدد الكاميرات",
+    "connectedCameras": "الكاميرات المتصلة:",
+    "activeCameras": "الكاميرات النشطة:",
+    "inactiveCameras": "الكاميرات غير النشطة:",
+    "fetchFailed": "فشل في عرض معلومات الكاميرات.",
+    "loadingData": "جارٍ تحميل معلومات الكاميرات...",
+    "noData": "لا توجد بيانات"
+  },
+  "cameraBrandsCard": {
+    "title": "العلامات التجارية المتصلة",
+    "loading": "جارٍ التحميل...",
+    "errorPrefix": "خطأ:",
+    "fetchFailed": "فشل في جلب معلومات العلامات التجارية للكاميرات.",
+    "empty": "لم يتم العثور على أي علامات تجارية",
+    "totalBrands": "إجمالي العلامات التجارية:",
+    "totalCameras": "إجمالي الكاميرات:"
+  },
+  "supportCard": {
+    "title": "الدعم",
+    "subtitle": "هل لديك سؤال؟ نحن هنا للمساعدة.",
+    "supportStatusLabel": "حالة الدعم:",
+    "supportAvailable": "متاح",
+    "channelsTitle": "قنوات التواصل:",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "liveChat": "الدردشة المباشرة",
+    "liveChatTime": "يوميًا من 8 إلى 18",
+    "button": "التواصل مع الدعم"
+  },
+  "motionStatsCard": {
+    "title": "إحصائيات كشف الحركة للكاميرات",
+    "loading": "جارٍ التحميل...",
+    "errorPrefix": "خطأ:",
+    "fetchFailed": "فشل في جلب إحصائيات كشف الحركة.",
+    "empty": "لا توجد بيانات كشف حركة",
+    "totalEvents": "إجمالي الأحداث",
+    "peakEvents": "ذروة الأحداث",
+    "timeRange": "النطاق الزمني",
+    "timeRangeValue": "24 ساعة",
+    "motionEvents": "أحداث الحركة"
+  },
+  "quickActionsCard": {
+    "title": "الإجراءات السريعة",
+    "loading": "جارٍ التحميل...",
+    "errorPrefix": "خطأ:",
+    "fetchFailed": "فشل في جلب الإجراءات السريعة.",
+    "empty": "لا توجد إجراءات سريعة متاحة",
+    "actions": {
+      "add-new-camera": "إضافة كاميرا جديدة",
+      "add-new-user": "إضافة مستخدم جديد",
+      "change-theme": "تغيير المظهر",
+      "app-info": "معلومات التطبيق"
+    }
+  }
+}

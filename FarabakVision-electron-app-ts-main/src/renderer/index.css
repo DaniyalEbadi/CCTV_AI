@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+@theme {
+  /* Neutral palette (based on #2a363b, with lighter end approximating #f8f6f6) */
+  --color-neutral-50: #f5f7f8;
+  --color-neutral-100: #e7ebed;
+  --color-neutral-200: #cfd8dc;
+  --color-neutral-300: #9fb2ba;
+  --color-neutral-400: #5d7782;
+  --color-neutral-500: #2a363b;
+  --color-neutral-600: #212b2f;
+  --color-neutral-700: #192023;
+  --color-neutral-800: #101517;
+  --color-neutral-900: #080a0b;
+  --color-neutral-950: #040505;
+
+  /* Primary palette (based on #cf4647) */
+  --color-primary-50: #fdf7f7;
+  --color-primary-100: #faecec;
+  --color-primary-200: #f5dada;
+  --color-primary-300: #ebb5b5;
+  --color-primary-400: #dd7d7e;
+  --color-primary-500: #cf4647;
+  --color-primary-600: #af2d2e;
+  --color-primary-700: #832222;
+  --color-primary-800: #571617;
+  --color-primary-900: #2b0b0b;
+  --color-primary-950: #150505;
+
+  /* Secondary palette (based on #ffb22c) */
+  --color-secondary-50: #fefbf6;
+  --color-secondary-100: #fef7e9;
+  --color-secondary-200: #ffefd4;
+  --color-secondary-300: #fee0aa;
+  --color-secondary-400: #ffc96b;
+  --color-secondary-500: #ffb22c;
+  --color-secondary-600: #ef9700;
+  --color-secondary-700: #b37100;
+  --color-secondary-800: #774b00;
+  --color-secondary-900: #3b2500;
+  --color-secondary-950: #1d1200;
+
+  /* Semantic mappings for the dark theme (overridable) */
+  --color-background: var(--color-neutral-800);
+  --color-foreground: var(--color-neutral-50);
+  --color-primary: var(--color-primary-500);
+  --color-secondary: var(--color-secondary-500);
+
+  --font-english: "Poppins", sans-serif;
+  --font-persianArabic: "IRANYekanX", sans-serif;
+}
+
+* {
+  outline: none;
+}
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 700ms ease-out;
+}
+
+/* Enable window dragging on the title bar */
+.titlebar-drag-region {
+  -webkit-app-region: drag;
+}
+
+/* Disable dragging on interactive elements */
+.titlebar-drag-region button,
+.titlebar-drag-region input,
+.titlebar-drag-region select {
+  -webkit-app-region: no-drag;
+}
+
+/* Prevent text selection on title bar */
+.select-none {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.titlebar-button {
+  transition: none !important;
+}
+
+.titlebar-button:hover {
+  transition: none !important;
+}
+
+.titlebar-icon {
+  transition: none !important;
+}

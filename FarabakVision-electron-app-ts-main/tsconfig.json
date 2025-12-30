@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "es2022",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["src/*"],
+      "@app/*": ["src/*"],
+      "@shared/*": ["src/types/*"],
+      "@main/*": ["src/main/*"],
+      "@preload/*": ["src/preload/*"],
+      "@bridges/*": ["src/preload/bridges/*"],
+      "@renderer/*": ["src/renderer/*"],
+      "@components/*": ["src/renderer/components/*"],
+      "@pages/*": ["src/renderer/pages/*"],
+      "@ui/*": ["src/renderer/ui/*"],
+      "@context/*": ["src/renderer/context/*"],
+      "@constants/*": ["src/renderer/constants/*"],
+      "@i18n/*": ["src/i18n/*"]
+    }
+  },
+  "include": ["src/types", "src"]
+}

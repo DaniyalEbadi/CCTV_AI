@@ -1,0 +1,20 @@
+{
+  "sidebar": {
+    "Dashboard": "Dashboard",
+    "Discovery": "Discovery",
+    "Camera-Streams": "Camera Streams",
+    "Subscriptions": "Subscriptions",
+    "Hardware-Settings": "Hardware settings",
+    "Settings": "Settings",
+    "User-Hub": "User Hub",
+    "Info": "Info",
+    "Login": "login",
+    "Logout": "logout",
+    "Language": "Language"
+  },
+  "languages": {
+    "fa": "Persian",
+    "ar": "Arabic",
+    "en": "english"
+  }
+}

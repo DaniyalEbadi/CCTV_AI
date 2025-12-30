@@ -1,0 +1,115 @@
+{
+  "modeSelector": {
+    "discoveryMode": "Discovery Mode",
+    "autoDiscovery": "Auto Discovery",
+    "manualDiscovery": "Manual Discovery"
+  },
+  "autoDiscovery": {
+    "header": {
+      "title": "Auto Discovery",
+      "description": "Automatically scans your network to find all compatible cameras. This method uses network protocols to detect devices without requiring manual configuration."
+    },
+    "howItWorks": {
+      "title": "How It Works"
+    },
+    "steps": {
+      "scan": {
+        "title": "Network Scan",
+        "description": "Searches your local network for devices"
+      },
+      "detect": {
+        "title": "Device Detection",
+        "description": "Identifies compatible cameras"
+      },
+      "connect": {
+        "title": "Auto Connect",
+        "description": "Connects to discovered devices"
+      }
+    },
+    "benefits": {
+      "quick": {
+        "title": "Quick & Easy",
+        "description": "Discover all cameras on your network in seconds without manual configuration."
+      },
+      "reliable": {
+        "title": "Reliable",
+        "description": "Uses standard protocols to ensure accurate device detection and connection."
+      }
+    },
+    "action": {
+      "start": "Start Auto Discovery",
+      "scanning": "Scanning Network...",
+      "hint": "Searching for cameras on your network. This may take a few moments..."
+    }
+  },
+  "manualDiscovery": {
+    "header": {
+      "title": "Manual Discovery",
+      "description": "Manually add cameras by entering their network details. Use this when auto discovery doesn't work or when cameras are on a different network."
+    },
+    "steps": {
+      "basicInfo": "Basic Information",
+      "networkConfig": "Network Configuration",
+      "authentication": "Authentication"
+    },
+    "whenToUse": {
+      "title": "When to Use Manual Discovery",
+      "items": [
+        "The camera is on a different subnet or network",
+        "Auto discovery is blocked by firewall settings",
+        "You already know the camera's IP address and credentials"
+      ]
+    },
+    "form": {
+      "title": "Camera Details",
+      "cameraName": "Camera Name",
+      "ip": "IP Address",
+      "category": "Camera Category",
+      "brand": "Camera Brand",
+      "protocol": "Protocol",
+      "transport": "Transport",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "selectCategory": "Select category",
+      "selectBrand": "Select brand",
+      "selectProtocol": "Select protocol"
+    },
+    "categories": {
+      "Indoor": "Indoor",
+      "Outdoor": "Outdoor",
+      "PTZ": "PTZ",
+      "Dome": "Dome",
+      "Bullet": "Bullet",
+      "Other": "Other"
+    },
+    "brands": {
+      "Reolink": "Reolink",
+      "Hikvision": "Hikvision",
+      "Dahua": "Dahua",
+      "Axis": "Axis",
+      "Bosch": "Bosch",
+      "Sony": "Sony",
+      "Other": "Other"
+    },
+    "transport": {
+      "TCP": "TCP",
+      "UDP": "UDP"
+    },
+    "protocols": {
+      "ONVIF": "ONVIF",
+      "RTSP": "RTSP"
+    },
+    "note": "Recording and snapshot options can be configured after the camera is successfully registered.",
+    "action": {
+      "add": "Add Camera",
+      "submitting": "Adding..."
+    },
+    "errors": {
+      "required": "This field is required.",
+      "invalidCharacters": "Input contains invalid characters.",
+      "invalidIp": "Please enter a valid IP address.",
+      "invalidPort": "Please enter a valid port number (0-65535)."
+    }
+  }
+}

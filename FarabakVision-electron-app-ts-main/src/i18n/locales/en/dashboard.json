@@ -1,0 +1,66 @@
+{
+  "userCard": {
+    "connectionStatus": "Connection Status:",
+    "ipAddress": "IP Address:",
+    "macAddress": "MAC Address:",
+    "osInfo": "Operating System:",
+    "connectedSince": "Connected Since:",
+    "fetchFailed": "Failed to display user information.",
+    "loadingData": "Loading user information..."
+  },
+  "cameraCountCard": {
+    "title": "Camera Count",
+    "connectedCameras": "Connected Cameras:",
+    "activeCameras": "Active Cameras:",
+    "inactiveCameras": "Inactive Cameras:",
+    "fetchFailed": "Failed to display camera information.",
+    "loadingData": "Loading camera information...",
+    "noData": "No data available"
+  },
+  "cameraBrandsCard": {
+    "title": "Connected Brands",
+    "loading": "Loading Brands Data...",
+    "errorPrefix": "Error:",
+    "fetchFailed": "Failed to fetch camera brand information.",
+    "empty": "No camera brands found",
+    "totalBrands": "Total brands:",
+    "totalCameras": "Total cameras:"
+  },
+  "supportCard": {
+    "title": "Support",
+    "subtitle": "Have a question? We’re here to help.",
+    "supportStatusLabel": "Support status:",
+    "supportAvailable": "Available",
+    "channelsTitle": "Communication channels:",
+    "email": "Email",
+    "phone": "Phone",
+    "liveChat": "Live chat",
+    "liveChatTime": "Daily 8 AM – 6 PM",
+    "button": "Contact Support"
+  },
+  "motionStatsCard": {
+    "title": "Camera Motion Detection Statistics",
+    "loading": "Loading...",
+    "errorPrefix": "Error:",
+    "fetchFailed": "Failed to fetch motion detection statistics.",
+    "empty": "No motion data available",
+    "totalEvents": "Total events",
+    "peakEvents": "Peak events",
+    "timeRange": "Time range",
+    "timeRangeValue": "24 hours",
+    "motionEvents": "Motion Events"
+  },
+  "quickActionsCard": {
+    "title": "Quick Actions",
+    "loading": "Loading...",
+    "errorPrefix": "Error:",
+    "fetchFailed": "Failed to fetch quick actions.",
+    "empty": "No quick actions available",
+     "actions": {
+      "add-new-camera": "Add New Camera",
+      "add-new-user": "Add New User",
+      "change-theme": "Change Theme",
+      "app-info": "App Info"
+    }
+  }
+}

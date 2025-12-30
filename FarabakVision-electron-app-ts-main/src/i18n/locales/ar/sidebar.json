@@ -1,0 +1,20 @@
+{
+  "sidebar": {
+    "Dashboard": "لوحة القيادة",
+    "Discovery": "اكتشاف",
+    "Camera-Streams": "تدفقات الكاميرا",
+    "Subscriptions": "الاشتراكات",
+    "Hardware-Settings": "إعدادات الأجهزة",
+    "Settings": "الإعدادات",
+    "User-Hub": "مركز المستخدم",
+    "Info": "معلومات",
+    "Login": "الورود",
+    "Logout": "الخروج الحساب",
+    "Language": "الزبان"
+  },
+  "languages": {
+    "fa": "پارسی",
+    "ar": "عربی",
+    "en": "انگلیسی"
+  }
+}

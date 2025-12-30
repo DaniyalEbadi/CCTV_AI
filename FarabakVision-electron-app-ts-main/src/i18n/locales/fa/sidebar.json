@@ -1,0 +1,20 @@
+{
+  "sidebar": {
+    "Dashboard": "داشبورد",
+    "Discovery": "کشف",
+    "Camera-Streams": "استریم دوربین‌ها",
+    "Subscriptions": "اشتراک‌ها",
+    "Hardware-Settings": "تنظیمات سخت‌افزار",
+    "Settings": "تنظیمات",
+    "User-Hub": "تنظیمات کاربر",
+    "Info": "اطلاعات",
+    "Login": "ورود به حساب",
+    "Logout": "خروج از حساب",
+    "Language": "زبان"
+  },
+  "languages": {
+    "fa": "فارسی",
+    "ar": "عربی",
+    "en": "انگلیسی"
+  }
+}

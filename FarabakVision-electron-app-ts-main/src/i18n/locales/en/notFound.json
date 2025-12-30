@@ -1,0 +1,7 @@
+{
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "Sorry, the page you're looking for doesn't exist.",
+    "backToHome": "Back to Home"
+  }
+}
