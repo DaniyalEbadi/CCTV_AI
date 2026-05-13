@@ -1,0 +1,380 @@
+INFO:     Started server process [26532]
+INFO:     Waiting for application startup.
+2026-02-18 15:44:46,047 - __main__ - INFO - === Backend Starting ===
+2026-02-18 15:44:46,047 - backend.config.settings - INFO - Backend running on 127.0.0.1:8000
+2026-02-18 15:44:46,048 - backend.config.settings - INFO - Inference device: cpu
+2026-02-18 15:44:46,048 - backend.config.settings - INFO - Confidence threshold: 0.5
+2026-02-18 15:44:46,048 - backend.config.settings - INFO - go2rtc API: http://127.0.0.1:1984
+2026-02-18 15:44:46,049 - backend.config.settings - INFO - go2rtc RTSP: rtsp://127.0.0.1:8554
+2026-02-18 15:44:46,049 - backend.config.settings - INFO - Enabled detectors: ['person', 'vehicle', 'face', 'motion']
+2026-02-18 15:44:46,049 - __main__ - INFO - Initializing detection pipeline with 4 detectors...
+2026-02-18 15:44:46,050 - backend.detectors.license_plate.detector - WARNING - EasyOCR not installed. Install with: pip install easyocr
+2026-02-18 15:44:46,051 - backend.services.detection_pipeline - INFO - DetectionPipeline initialized with detectors: ['person', 'vehicle', 'face', 'motion']
+2026-02-18 15:44:46,144 - backend.detectors.person.detector - INFO - PersonDetector loaded on cpu
+2026-02-18 15:44:46,144 - backend.services.detection_pipeline - INFO - Loaded person detector
+2026-02-18 15:44:46,228 - backend.detectors.vehicle.detector - INFO - VehicleDetector loaded on cpu
+2026-02-18 15:44:46,229 - backend.services.detection_pipeline - INFO - Loaded vehicle detector
+2026-02-18 15:44:46,266 - backend.detectors.face.detector - INFO - FaceDetector model ready (backend=opencv_haar)
+2026-02-18 15:44:46,267 - backend.services.detection_pipeline - INFO - Loaded face detector
+2026-02-18 15:44:46,267 - backend.detectors.motion.detector - INFO - MotionDetector initialized (background subtraction)
+2026-02-18 15:44:46,267 - backend.services.detection_pipeline - INFO - Loaded motion detector
+2026-02-18 15:44:46,268 - __main__ - INFO - \u2713 Detection pipeline ready
+2026-02-18 15:44:46,268 - __main__ - INFO - Initializing camera manager from go2rtc.yaml...
+2026-02-18 15:44:46,273 - backend.services.camera_manager - INFO - Loaded camera: info
+2026-02-18 15:44:46,274 - backend.services.camera_manager - INFO - Loaded camera: web4dev
+2026-02-18 15:44:46,275 - backend.services.camera_manager - INFO - Loaded camera: danial ebadi
+2026-02-18 15:44:46,275 - backend.services.camera_manager - INFO - Loaded camera: flv
+2026-02-18 15:44:46,276 - backend.services.camera_manager - INFO - Loaded camera: camera
+2026-02-18 15:44:46,276 - backend.services.camera_manager - INFO - Loaded camera: new
+2026-02-18 15:44:46,276 - backend.services.camera_manager - INFO - Loaded camera: DD
+2026-02-18 15:44:46,277 - backend.services.camera_manager - INFO - Parsed 7 cameras from go2rtc config
+2026-02-18 15:44:46,277 - backend.services.camera_manager - INFO - Loaded 7 cameras into manager
+2026-02-18 15:44:46,277 - __main__ - INFO - \u2713 Camera manager ready with 7 cameras
+2026-02-18 15:44:46,278 - __main__ - INFO - === Backend Ready ===
+
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-02-18 15:45:31,944 - backend.api.routes - INFO - No frame yet | camera=DD status=idle
+2026-02-18 15:45:31,945 - backend.api.routes - INFO - Auto-start camera for detect | camera=DD
+2026-02-18 15:45:31,945 - backend.services.camera_manager - INFO - Starting camera stream | camera=DD url=rtsp://127.0.0.1:8554/DD
+2026-02-18 15:45:31,953 - backend.core.frame_source - INFO - Starting FFmpeg for rtsp://127.0.0.1:8554/DD
+2026-02-18 15:45:31,969 - backend.core.frame_source - INFO - Frame source started | url=rtsp://127.0.0.1:8554/DD
+2026-02-18 15:45:32,171 - backend.services.camera_manager - INFO - Started frame source for camera: DD
+2026-02-18 15:45:32,970 - backend.core.frame_source - INFO - Frame reader loop starting | fps=5, 640x360
+2026-02-18 15:45:39,713 - backend.core.frame_source - INFO - First frame received! 640x360
+2026-02-18 15:49:45,995 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:47,011 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:48,024 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:49,031 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:51,881 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:52,911 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:53,928 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:54,952 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:56,027 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:57,056 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:58,065 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:49:59,085 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:00,091 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:02,262 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:04,421 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:05,434 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:07,603 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:08,630 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:09,646 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:10,655 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:11,672 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:12,689 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:13,703 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:14,727 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:15,745 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:16,757 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:17,772 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:18,787 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:19,803 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:20,812 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:21,830 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:22,838 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:23,858 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:24,880 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:25,896 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:26,914 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:27,934 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:28,945 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:29,960 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:30,971 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:32,002 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:33,013 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:34,028 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:35,043 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:36,063 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:37,073 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:38,103 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:39,122 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:40,139 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:41,148 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:42,158 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:43,176 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:44,193 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:45,203 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:46,226 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:47,241 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:49,410 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:50,439 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:51,457 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:52,486 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:53,517 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:54,547 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:55,565 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:56,583 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:57,598 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:58,616 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:50:59,636 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:00,651 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:01,667 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:02,682 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:03,698 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:04,721 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:05,732 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:06,756 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:07,792 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:08,816 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:09,833 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:10,844 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:11,856 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:12,872 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:13,880 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:14,897 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:15,911 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:16,931 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:17,944 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:18,960 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:19,978 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:20,993 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:22,006 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:23,032 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:24,048 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:25,066 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:26,082 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:27,113 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:28,129 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:29,140 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:30,147 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:31,162 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:32,168 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:33,186 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:34,196 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:35,207 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:36,223 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:39,686 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:42,080 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:43,112 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:44,139 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:45,158 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:46,175 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:47,192 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:48,210 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:49,226 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:50,242 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:51,257 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:52,272 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:53,282 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:54,327 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:55,339 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:56,371 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:57,382 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:58,400 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:51:59,410 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:00,430 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:01,443 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:02,469 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:03,486 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:04,505 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:05,521 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:06,538 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:07,555 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:08,565 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:09,582 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:10,601 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:11,611 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:12,625 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:13,637 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:14,651 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:15,664 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:16,677 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:17,688 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:18,702 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:19,715 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:20,724 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:21,738 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:22,748 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:23,764 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:24,781 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:25,795 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:26,812 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:27,821 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:28,831 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:29,851 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:30,870 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:31,889 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:32,898 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:33,909 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:34,922 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:35,939 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:36,955 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:37,965 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:38,974 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:40,001 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:41,008 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:42,025 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:43,051 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:44,068 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:45,072 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:46,085 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:47,097 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:48,111 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:49,122 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:50,148 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:51,169 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:52,193 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:53,221 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:54,237 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:55,248 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:56,262 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:57,282 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:58,304 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:52:59,320 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:00,338 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:01,368 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:02,384 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:03,408 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:04,423 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:05,441 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:06,446 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:07,467 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:08,488 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:09,500 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:10,525 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:11,554 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:12,575 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:13,592 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:14,607 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:15,626 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:16,644 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:17,660 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:18,677 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:20,918 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:21,930 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:22,941 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:23,949 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:24,963 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:25,973 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:26,984 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:27,993 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:29,018 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:30,031 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:31,040 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:32,063 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:33,075 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:34,087 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:35,096 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:37,277 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:38,299 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:39,318 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:40,349 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:41,374 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:42,381 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:43,393 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:53:44,413 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 15:55:02,977 - backend.core.frame_source - WARNING - FFmpeg stdout closed (code=0): [rtsp @ 0000026664986140] Failed reading RTSP data: End of file | Last message repeated 1 times
+2026-02-18 15:55:02,977 - backend.core.frame_source - INFO - Frame reader stopped | 2616 frames captured
+2026-02-18 15:59:14,087 - backend.api.routes - INFO - List cameras | total=7 active=1
+2026-02-18 16:00:58,297 - backend.api.routes - INFO - List cameras | total=7 active=1
+2026-02-18 16:01:03,302 - backend.api.routes - INFO - No frame yet | camera=DD status=stopped
+2026-02-18 16:01:03,303 - backend.api.routes - INFO - Auto-start camera for detect | camera=DD
+2026-02-18 16:01:03,303 - backend.core.frame_source - INFO - Frame source stopped | url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:01:03,304 - backend.services.camera_manager - INFO - Starting camera stream | camera=DD url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:01:03,305 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,305 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,310 - backend.core.frame_source - INFO - Starting FFmpeg for rtsp://127.0.0.1:8554/DD
+2026-02-18 16:01:03,316 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,317 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,328 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,329 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,340 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,342 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,354 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,356 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,361 - backend.core.frame_source - INFO - Frame source started | url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:01:03,370 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,370 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,382 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,384 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,399 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,400 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,411 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,414 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,426 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,430 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,443 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,444 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,455 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,456 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,467 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,468 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,479 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,480 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,491 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,492 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,503 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,504 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,514 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,516 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,527 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,528 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,538 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,539 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,551 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,551 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:03,562 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:01:03,562 - backend.services.camera_manager - INFO - Started frame source for camera: DD
+2026-02-18 16:01:03,563 - backend.services.camera_manager - INFO - Camera start already in progress | camera=DD
+2026-02-18 16:01:04,361 - backend.core.frame_source - INFO - Frame reader loop starting | fps=5, 640x360
+2026-02-18 16:01:04,574 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:05,589 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:06,607 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:07,624 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:08,530 - backend.core.frame_source - INFO - First frame received! 640x360
+2026-02-18 16:01:08,636 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:09,646 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:10,575 - backend.services.detection_pipeline - INFO - Enabled face detector
+2026-02-18 16:01:10,593 - backend.services.detection_pipeline - INFO - Disabled person detector
+2026-02-18 16:01:10,601 - backend.services.detection_pipeline - INFO - Disabled vehicle detector
+2026-02-18 16:01:10,607 - backend.services.detection_pipeline - INFO - Disabled motion detector
+2026-02-18 16:01:10,660 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:11,667 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:12,683 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:13,695 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:14,716 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:15,748 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:16,767 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:17,778 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:18,794 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:19,810 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:20,825 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:21,835 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:22,850 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:23,866 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:24,887 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:01:25,905 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:02:09,839 - backend.api.routes - INFO - Stopping camera | camera=DD
+2026-02-18 16:02:10,045 - backend.core.frame_source - WARNING - FFmpeg stdout closed (code=1)
+2026-02-18 16:02:10,048 - backend.core.frame_source - INFO - Frame reader stopped | 321 frames captured
+2026-02-18 16:02:10,051 - backend.core.frame_source - INFO - Frame source stopped | url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:02:10,052 - backend.services.camera_manager - INFO - Stopped frame source for camera: DD
+2026-02-18 16:02:10,063 - backend.services.camera_manager - INFO - Auto-starting camera: DD
+2026-02-18 16:02:10,065 - backend.services.camera_manager - INFO - Starting camera stream | camera=DD url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:02:10,123 - backend.api.routes - INFO - List cameras | total=7 active=0
+2026-02-18 16:02:10,174 - backend.core.frame_source - INFO - Starting FFmpeg for rtsp://127.0.0.1:8554/DD
+2026-02-18 16:02:10,340 - backend.core.frame_source - INFO - Frame source started | url=rtsp://127.0.0.1:8554/DD
+2026-02-18 16:02:10,542 - backend.services.camera_manager - INFO - Started frame source for camera: DD
+2026-02-18 16:02:11,336 - backend.api.routes - INFO - List cameras | total=7 active=1
+2026-02-18 16:02:11,341 - backend.core.frame_source - INFO - Frame reader loop starting | fps=5, 640x360
+2026-02-18 16:02:16,639 - backend.core.frame_source - INFO - First frame received! 640x360
+2026-02-18 16:06:00,193 - backend.api.routes - INFO - List cameras | total=7 active=1
+2026-02-18 16:06:00,466 - backend.services.detection_pipeline - INFO - Enabled person detector
+2026-02-18 16:06:00,515 - backend.services.detection_pipeline - INFO - Enabled vehicle detector
+2026-02-18 16:06:00,530 - backend.services.detection_pipeline - INFO - Enabled motion detector
+2026-02-18 16:06:00,536 - backend.services.detection_pipeline - INFO - Disabled face detector
+2026-02-18 16:06:09,832 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:10,843 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:11,364 - backend.services.detection_pipeline - INFO - Enabled face detector
+2026-02-18 16:06:11,382 - backend.services.detection_pipeline - INFO - Disabled person detector
+2026-02-18 16:06:11,392 - backend.services.detection_pipeline - INFO - Disabled vehicle detector
+2026-02-18 16:06:11,399 - backend.services.detection_pipeline - INFO - Disabled motion detector
+2026-02-18 16:06:11,861 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:12,877 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:14,949 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:15,970 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:18,059 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:19,073 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-18 16:06:20,087 - backend.api.routes - INFO - No frame yet | camera=DD status=running

@@ -1,0 +1,10 @@
+12:26:58.480 INF go2rtc platform=windows/amd64 revision= version=1.9.12
+12:26:58.539 INF config path="C:\\Users\\Dani\\Desktop\\go2rtc-master\\go2rtc.yaml"
+12:26:58.546 INF [rtsp] listen addr=:8554
+12:26:58.548 INF [api] listen addr=:1984
+12:27:01.775 INF [webrtc] listen addr=:8555
+12:33:53.530 WRN github.com/AlexxIT/go2rtc/internal/streams/producer.go:170 > error=EOF url=ffmpeg:rtsp://admin:test1234@192.168.4.252:554/h265Preview_01_main#video=h264#width=1280#height=720#audio=copy
+12:34:21.714 WRN github.com/AlexxIT/go2rtc/internal/streams/producer.go:170 > error=EOF url=ffmpeg:rtsp://admin:test1234@192.168.4.252:554/h265Preview_01_main#video=h264#width=1280#height=720#audio=copy
+12:34:43.638 WRN github.com/AlexxIT/go2rtc/internal/streams/producer.go:170 > error=EOF url=ffmpeg:rtsp://admin:test1234@192.168.4.252:554/h265Preview_01_main#video=h264#width=1280#height=720#audio=copy
+12:34:49.129 WRN github.com/AlexxIT/go2rtc/internal/streams/producer.go:170 > error="read tcp 192.168.4.253:21601->192.168.4.252:554: i/o timeout" url=rtsp://admin:test1234@192.168.4.252:554/h265Preview_01_main
+12:34:49.719 WRN github.com/AlexxIT/go2rtc/internal/streams/producer.go:170 > error="read tcp 127.0.0.1:8554->127.0.0.1:58949: i/o timeout" url=ffmpeg:DD_src#video=h264#width=1280#height=720#fps=10#audio=copy

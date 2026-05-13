@@ -1,0 +1,51 @@
+INFO:     Started server process [38484]
+INFO:     Waiting for application startup.
+2026-02-12 15:08:11,576 - __main__ - INFO - === Backend Starting ===
+2026-02-12 15:08:11,577 - backend.config.settings - INFO - Backend running on 127.0.0.1:8000
+2026-02-12 15:08:11,579 - backend.config.settings - INFO - Inference device: cpu
+2026-02-12 15:08:11,580 - backend.config.settings - INFO - Confidence threshold: 0.5
+2026-02-12 15:08:11,582 - backend.config.settings - INFO - go2rtc API: http://127.0.0.1:1984
+2026-02-12 15:08:11,584 - backend.config.settings - INFO - go2rtc RTSP: rtsp://127.0.0.1:8554
+2026-02-12 15:08:11,585 - backend.config.settings - INFO - Enabled detectors: ['person', 'vehicle', 'face', 'motion']
+2026-02-12 15:08:11,587 - __main__ - INFO - Initializing detection pipeline with 4 detectors...
+2026-02-12 15:08:20,799 - tensorflow - WARNING - From C:\Users\Dani\AppData\Local\Programs\Python\Python313\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2026-02-12 15:08:26,193 - backend.services.detection_pipeline - INFO - DetectionPipeline initialized with detectors: ['person', 'vehicle', 'face', 'motion']
+2026-02-12 15:08:26,286 - backend.detectors.person.detector - INFO - PersonDetector loaded on cpu
+2026-02-12 15:08:26,287 - backend.services.detection_pipeline - INFO - Loaded person detector
+2026-02-12 15:08:26,361 - backend.detectors.vehicle.detector - INFO - VehicleDetector loaded on cpu
+2026-02-12 15:08:26,362 - backend.services.detection_pipeline - INFO - Loaded vehicle detector
+2026-02-12 15:08:26,362 - backend.detectors.face.detector - INFO - FaceDetector model ready (uses RetinaFace)
+2026-02-12 15:08:26,362 - backend.services.detection_pipeline - INFO - Loaded face detector
+2026-02-12 15:08:26,366 - backend.detectors.motion.detector - INFO - MotionDetector initialized (background subtraction)
+2026-02-12 15:08:26,367 - backend.services.detection_pipeline - INFO - Loaded motion detector
+2026-02-12 15:08:26,368 - __main__ - INFO - \u2713 Detection pipeline ready
+2026-02-12 15:08:26,368 - __main__ - INFO - Initializing camera manager from go2rtc.yaml...
+2026-02-12 15:08:26,371 - backend.services.camera_manager - INFO - Loaded camera: info
+2026-02-12 15:08:26,371 - backend.services.camera_manager - INFO - Loaded camera: web4dev
+2026-02-12 15:08:26,372 - backend.services.camera_manager - INFO - Loaded camera: danial ebadi
+2026-02-12 15:08:26,372 - backend.services.camera_manager - INFO - Loaded camera: flv
+2026-02-12 15:08:26,372 - backend.services.camera_manager - INFO - Loaded camera: camera
+2026-02-12 15:08:26,373 - backend.services.camera_manager - INFO - Loaded camera: new
+2026-02-12 15:08:26,373 - backend.services.camera_manager - INFO - Loaded camera: DD
+2026-02-12 15:08:26,373 - backend.services.camera_manager - INFO - Parsed 7 cameras from go2rtc config
+2026-02-12 15:08:26,374 - backend.services.camera_manager - INFO - Loaded 7 cameras into manager
+2026-02-12 15:08:26,374 - __main__ - INFO - \u2713 Camera manager ready with 7 cameras
+2026-02-12 15:08:26,374 - __main__ - INFO - === Backend Ready ===
+
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+2026-02-12 15:08:26,376 - __main__ - INFO - === Backend Shutting Down ===
+2026-02-12 15:08:26,377 - backend.detectors.person.detector - INFO - PersonDetector unloaded
+2026-02-12 15:08:26,377 - backend.services.detection_pipeline - INFO - Unloaded person detector
+2026-02-12 15:08:26,379 - backend.detectors.vehicle.detector - INFO - VehicleDetector unloaded
+2026-02-12 15:08:26,379 - backend.services.detection_pipeline - INFO - Unloaded vehicle detector
+2026-02-12 15:08:26,379 - backend.detectors.face.detector - INFO - FaceDetector unloaded
+2026-02-12 15:08:26,382 - backend.services.detection_pipeline - INFO - Unloaded face detector
+2026-02-12 15:08:26,383 - backend.detectors.motion.detector - INFO - MotionDetector unloaded
+2026-02-12 15:08:26,384 - backend.services.detection_pipeline - INFO - Unloaded motion detector
+2026-02-12 15:08:26,385 - __main__ - INFO - \u2713 Detection pipeline unloaded
+2026-02-12 15:08:26,386 - __main__ - INFO - \u2713 All cameras stopped
+2026-02-12 15:08:26,386 - __main__ - INFO - === Backend Stopped ===
+INFO:     Application shutdown complete.

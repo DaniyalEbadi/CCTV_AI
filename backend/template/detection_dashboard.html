@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    <title>AI Detection Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .header h1 {
+            color: #00d4ff;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .sidebar {
+            background: rgba(45, 45, 90, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .sidebar h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .camera-list {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .camera-item {
+            background: rgba(60, 60, 120, 0.6);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .camera-item:hover {
+            background: rgba(80, 80, 140, 0.8);
+            border-left-color: #00d4ff;
+            transform: translateX(5px);
+        }
+        
+        .camera-item.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-left-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        .camera-item h3 {
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+        
+        .camera-status {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .controls.single-control {
+            grid-template-columns: 1fr;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        #startBtn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        #startBtn:hover:not(:disabled) {
+            background: #45a049;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+        
+        #stopBtn {
+            background: #f44336;
+            color: white;
+        }
+        
+        #stopBtn:hover:not(:disabled) {
+            background: #da190b;
+            box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
+        }
+
+        #faceOnlyBtn {
+            background: #ff9800;
+            color: white;
+        }
+
+        #faceOnlyBtn.active {
+            background: #00b894;
+            box-shadow: 0 0 15px rgba(0, 184, 148, 0.5);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+        
+        #videoStream {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #livePlayer {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: none;
+            background: #000;
+        }
+        
+        .placeholder {
+            text-align: center;
+            opacity: 0.6;
+        }
+        
+        .placeholder h2 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+        
+        .status-message {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #ff9800;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            border: 1px solid #ff9800;
+            z-index: 10;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .detection-info {
+            background: rgba(45, 45, 90, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .detection-item {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #00d4ff;
+            text-align: center;
+        }
+        
+        .detection-item-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .detection-item-value {
+            color: #00d4ff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            color: #aaa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .mode-btn.active {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎥 AI Detection Dashboard</h1>
+        <p>Real-time object detection and monitoring</p>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>Cameras</h2>
+            <div class="camera-list" id="cameraList">
+                <!-- Cameras loaded dynamically -->
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" onclick="startCamera()" disabled>Start</button>
+                <button id="stopBtn" onclick="stopCamera()" disabled>Stop</button>
+            </div>
+
+            <div class="controls">
+                <button id="refreshBtn" onclick="refreshCameras()">Refresh</button>
+            </div>
+
+            <div class="controls single-control">
+                <button id="faceOnlyBtn" onclick="toggleFaceOnlyDetection()">Face Only: OFF</button>
+            </div>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="switchMode('stream', this)">Stream</button>
+                <button class="mode-btn" onclick="switchMode('detect', this)">Detect</button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="personCount">0</div>
+                    <div class="stat-label">Persons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="vehicleCount">0</div>
+                    <div class="stat-label">Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="faceCount">0</div>
+                    <div class="stat-label">Faces</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="fpsCounter">0</div>
+                    <div class="stat-label">FPS</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="video-container">
+                <div class="status-message" id="statusMessage" style="display: none;"></div>
+                <div class="placeholder" id="placeholder">
+                    <h2>Select a camera to start</h2>
+                    <p>Choose a camera from the sidebar to view live feed</p>
+                </div>
+                <iframe id="livePlayer" title="Live Camera Player" allow="autoplay; fullscreen"></iframe>
+                <img id="videoStream" alt="Camera Stream" style="display: none;">
+            </div>
+            
+            <div class="detection-info" id="detectionInfo" style="display: none;">
+                <!-- Detection results displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_BASE = 'http://127.0.0.1:8000';
+        const API_BASE = `${BACKEND_BASE}/api`;
+        const GO2RTC_BASE = 'http://127.0.0.1:1984';
+        const GO2RTC_LIVE_MODE = 'webrtc,mse,hls';
+        const LOG_PREFIX = '[AI Dashboard]';
+        let selectedCamera = null;
+        let currentMode = 'stream';
+        let detectionInterval = null;
+        let detectionRequestInFlight = false;
+        let detectionRequestSeq = 0;
+        let faceOnlyMode = false;
+        const DETECTION_POLL_MS = 1000;
+        const DETECTION_REQUEST_TIMEOUT_MS = 10000;
+        let fpsCounter = 0;
+        let lastFrameTime = 0;
+
+        function logInfo(message, data = null) {
+            if (data !== null) {
+                console.log(`${LOG_PREFIX} ${message}`, data);
+            } else {
+                console.log(`${LOG_PREFIX} ${message}`);
+            }
+        }
+
+        function logWarn(message, data = null) {
+            if (data !== null) {
+                console.warn(`${LOG_PREFIX} ${message}`, data);
+            } else {
+                console.warn(`${LOG_PREFIX} ${message}`);
+            }
+        }
+
+        function logError(message, data = null) {
+            if (data !== null) {
+                console.error(`${LOG_PREFIX} ${message}`, data);
+            } else {
+                console.error(`${LOG_PREFIX} ${message}`);
+            }
+        }
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = DETECTION_REQUEST_TIMEOUT_MS) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal });
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+        
+        // Initialize dashboard
+        async function init() {
+            logInfo('Initializing dashboard');
+            await loadCameras();
+            await initializeDetectorProfile();
+        }
+        
+        // Load available cameras
+        async function loadCameras() {
+            try {
+                logInfo('Fetching cameras', { url: `${API_BASE}/cameras` });
+                const response = await fetch(`${API_BASE}/cameras`);
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch {}
+                if (!response.ok) {
+                    logWarn('Failed to load cameras', { status: response.status, payload });
+                    showStatusMessage('Failed to load cameras');
+                    return;
+                }
+                const data = payload || {};
+                logInfo('Cameras loaded', data);
+                
+                const cameraList = document.getElementById('cameraList');
+                cameraList.innerHTML = '';
+                
+                if (data.cameras && data.cameras.length > 0) {
+                    data.cameras.forEach(camera => {
+                        const cameraElement = document.createElement('div');
+                        cameraElement.className = 'camera-item';
+                        cameraElement.innerHTML = `
+                            <h3>${camera.name}</h3>
+                            <div class="camera-status">Status: ${camera.status || 'stopped'}</div>
+                        `;
+                        cameraElement.onclick = (e) => selectCamera(camera.name, e.currentTarget);
+                        cameraList.appendChild(cameraElement);
+                    });
+                } else {
+                    cameraList.innerHTML = '<p style="color: #aaa;">No cameras found. Configure go2rtc.yaml</p>';
+                }
+            } catch (error) {
+                logError('Error loading cameras', error);
+                showStatusMessage('Failed to load cameras');
+            }
+        }
+
+        async function refreshCameras() {
+            try {
+                logInfo('Refreshing cameras');
+                const response = await fetch(`${API_BASE}/cameras/refresh`, {
+                    method: 'POST'
+                });
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch {}
+
+                if (!response.ok) {
+                    logWarn('Refresh cameras failed', { status: response.status, payload });
+                    showStatusMessage('Failed to refresh cameras');
+                    return;
+                }
+
+                logInfo('Refresh cameras ok', payload);
+                showStatusMessage('Cameras refreshed');
+                await loadCameras();
+            } catch (error) {
+                logError('Refresh cameras error', error);
+                showStatusMessage('Failed to refresh cameras');
+            }
+        }
+
+        async function initializeDetectorProfile() {
+            const button = document.getElementById('faceOnlyBtn');
+            try {
+                await setDetectorEnabled('person', true);
+                await setDetectorEnabled('vehicle', true);
+                await setDetectorEnabled('motion', true);
+                await setDetectorEnabled('face', false);
+                faceOnlyMode = false;
+                button.textContent = 'Face Only: OFF';
+                button.classList.remove('active');
+                logInfo('Initialized detector profile (face disabled by default)');
+            } catch (error) {
+                logWarn('Failed to initialize detector profile', error);
+            }
+        }
+
+        async function setDetectorEnabled(detectorName, enabled) {
+            const action = enabled ? 'enable' : 'disable';
+            const url = `${API_BASE}/detectors/${encodeURIComponent(detectorName)}/${action}`;
+            const response = await fetch(url, { method: 'POST' });
+            let payload = null;
+            try {
+                payload = await response.json();
+            } catch {}
+            if (!response.ok) {
+                logWarn('Detector toggle failed', { detector: detectorName, enabled, status: response.status, payload });
+                throw new Error(`Failed to ${action} detector '${detectorName}'`);
+            }
+            return payload;
+        }
+
+        async function toggleFaceOnlyDetection() {
+            const button = document.getElementById('faceOnlyBtn');
+            const targetState = !faceOnlyMode;
+            button.disabled = true;
+            try {
+                if (targetState) {
+                    showStatusMessage('Enabling face detector (may take a few seconds)...');
+                    await setDetectorEnabled('face', true);
+                    await setDetectorEnabled('person', false);
+                    await setDetectorEnabled('vehicle', false);
+                    await setDetectorEnabled('motion', false);
+                    faceOnlyMode = true;
+                    button.textContent = 'Face Only: ON';
+                    button.classList.add('active');
+                    showStatusMessage('Face-only detection enabled');
+                    logInfo('Face-only mode enabled');
+                } else {
+                    await setDetectorEnabled('person', true);
+                    await setDetectorEnabled('vehicle', true);
+                    await setDetectorEnabled('motion', true);
+                    await setDetectorEnabled('face', false);
+                    faceOnlyMode = false;
+                    button.textContent = 'Face Only: OFF';
+                    button.classList.remove('active');
+                    showStatusMessage('Face detector disabled');
+                    logInfo('Face-only mode disabled (face detector off)');
+                }
+            } catch (error) {
+                logError('Failed to toggle face-only mode', error);
+                showStatusMessage('Face-only toggle failed');
+            } finally {
+                button.disabled = false;
+            }
+        }
+        
+        // Select camera
+        function selectCamera(cameraName, element) {
+            logInfo('Selecting camera', { camera: cameraName });
+            document.querySelectorAll('.camera-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (element) {
+                element.classList.add('active');
+            }
+            selectedCamera = cameraName;
+            
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = false;
+            
+            setupVideoStream();
+        }
+        
+        // Setup video stream
+        function setupVideoStream() {
+            if (!selectedCamera) return;
+            
+            const videoStream = document.getElementById('videoStream');
+            const livePlayer = document.getElementById('livePlayer');
+            const encodedCamera = encodeURIComponent(selectedCamera);
+            
+            if (currentMode === 'detect') {
+                livePlayer.style.display = 'none';
+                livePlayer.src = 'about:blank';
+                videoStream.style.display = 'block';
+                videoStream.src = `${BACKEND_BASE}/detect-stream/${encodedCamera}`;
+                logInfo('Detect stream set', { camera: selectedCamera, src: videoStream.src });
+
+                videoStream.onload = () => logInfo('Detect MJPEG image loaded');
+                videoStream.onerror = () => logWarn('Detect MJPEG image load error');
+
+                // Avoid double inference load: /detect-stream already runs detections server-side.
+                stopDetection();
+                updateDetectionInfo(null);
+                updateStats(null);
+                logInfo('Detection polling disabled in detect mode (using detect-stream)');
+            } else {
+                videoStream.style.display = 'none';
+                videoStream.src = '';
+                livePlayer.style.display = 'block';
+                livePlayer.src = `${GO2RTC_BASE}/stream.html?src=${encodedCamera}&mode=${encodeURIComponent(GO2RTC_LIVE_MODE)}`;
+                livePlayer.onload = () => logInfo('Live player loaded', { camera: selectedCamera, src: livePlayer.src });
+                logInfo('Live player set', { camera: selectedCamera, src: livePlayer.src });
+                if (faceOnlyMode) {
+                    showStatusMessage('Face-only active: switch to Detect mode to see bounding boxes');
+                }
+                startDetection();
+            }
+        }
+        
+        // Switch between stream and detect mode
+        function switchMode(mode, element) {
+            currentMode = mode;
+            logInfo('Switch mode', { mode });
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            if (selectedCamera) {
+                setupVideoStream();
+            }
+        }
+        
+        // Start camera
+        async function startCamera() {
+            if (!selectedCamera) return;
+            
+            try {
+                const encodedCamera = encodeURIComponent(selectedCamera);
+                logInfo('Starting camera', { camera: selectedCamera });
+                const response = await fetch(`${API_BASE}/cameras/${encodedCamera}/start`, {
+                    method: 'POST'
+                });
+                
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch {}
+
+                const detail = payload && payload.detail ? String(payload.detail) : '';
+                const alreadyRunning = detail.toLowerCase().includes('already running');
+
+                if (response.ok || alreadyRunning) {
+                    showStatusMessage(`Started ${selectedCamera}`);
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    loadCameras();
+                    logInfo('Camera started', payload);
+                } else {
+                    showStatusMessage(detail || 'Failed to start camera');
+                    logWarn('Start camera failed', { status: response.status, payload });
+                }
+            } catch (error) {
+                logError('Error starting camera', error);
+                showStatusMessage('Failed to start camera');
+            }
+        }
+        
+        // Stop camera
+        async function stopCamera() {
+            if (!selectedCamera) return;
+            
+            try {
+                const encodedCamera = encodeURIComponent(selectedCamera);
+                logInfo('Stopping camera', { camera: selectedCamera });
+                const response = await fetch(`${API_BASE}/cameras/${encodedCamera}/stop`, {
+                    method: 'POST'
+                });
+                
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch {}
+
+                const detail = payload && payload.detail ? String(payload.detail) : '';
+                const notRunning = detail.toLowerCase().includes('not running');
+
+                if (response.ok || notRunning) {
+                    showStatusMessage(`Stopped ${selectedCamera}`);
+                    stopDetection();
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    loadCameras();
+                    logInfo('Camera stopped', payload);
+                } else {
+                    showStatusMessage(detail || 'Failed to stop camera');
+                    logWarn('Stop camera failed', { status: response.status, payload });
+                }
+            } catch (error) {
+                logError('Error stopping camera', error);
+                showStatusMessage('Failed to stop camera');
+            }
+        }
+        
+        // Start detection polling
+        function startDetection() {
+            if (detectionInterval) {
+                clearTimeout(detectionInterval);
+                detectionInterval = null;
+            }
+            detectionRequestInFlight = false;
+
+            const poll = async () => {
+                if (!selectedCamera) return;
+
+                if (detectionRequestInFlight) {
+                    logWarn('Skip detection tick (previous request still running)', { camera: selectedCamera });
+                    detectionInterval = setTimeout(poll, DETECTION_POLL_MS);
+                    return;
+                }
+
+                detectionRequestInFlight = true;
+                const reqId = ++detectionRequestSeq;
+                const startedAt = performance.now();
+                try {
+                    const encodedCamera = encodeURIComponent(selectedCamera);
+                    const response = await fetchWithTimeout(`${API_BASE}/detect/${encodedCamera}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && (data.status === 'no_frame_yet' || data.status === 'ffmpeg_error')) {
+                            const msg = data.message || data.status;
+                            logWarn(`Frame unavailable (${data.status})`, { reqId, camera: selectedCamera, data });
+                            showStatusMessage(msg);
+                            updateDetectionInfo(null);
+                            updateStats(null);
+                            return;
+                        }
+                        updateDetectionInfo(data.results || null);
+                        updateStats(data.results || null);
+                        logInfo('Detections updated', {
+                            reqId,
+                            camera: selectedCamera,
+                            duration_ms: Math.round(performance.now() - startedAt),
+                            result_keys: data && data.results ? Object.keys(data.results) : []
+                        });
+                    } else {
+                        let payload = null;
+                        try {
+                            payload = await response.json();
+                        } catch {
+                            try {
+                                payload = await response.text();
+                            } catch {}
+                        }
+                        logWarn('Detection API error', {
+                            reqId,
+                            camera: selectedCamera,
+                            status: response.status,
+                            payload
+                        });
+                        showStatusMessage('Detection API error');
+                    }
+                } catch (error) {
+                    const isTimeout = error && error.name === 'AbortError';
+                    logError('Detection error', {
+                        reqId,
+                        camera: selectedCamera,
+                        timeout: isTimeout,
+                        message: error && error.message ? error.message : String(error),
+                        stack: error && error.stack ? error.stack : null
+                    });
+                    if (isTimeout) {
+                        showStatusMessage('Detection request timeout (backend busy)');
+                    }
+                } finally {
+                    detectionRequestInFlight = false;
+                    if (selectedCamera) {
+                        detectionInterval = setTimeout(poll, DETECTION_POLL_MS);
+                    }
+                }
+            };
+
+            poll();
+        }
+        
+        // Stop detection polling
+        function stopDetection() {
+            if (detectionInterval) {
+                clearTimeout(detectionInterval);
+                detectionInterval = null;
+            }
+            detectionRequestInFlight = false;
+        }
+        
+        // Update detection info display
+        function updateDetectionInfo(results) {
+            const detectionInfo = document.getElementById('detectionInfo');
+            detectionInfo.innerHTML = '';
+            
+            if (!results) {
+                detectionInfo.style.display = 'none';
+                return;
+            }
+
+            let hasDetections = false;
+            for (const detectorName in results) {
+                const result = results[detectorName];
+                if (result.detections && result.detections.length > 0) {
+                    hasDetections = true;
+                    const count = result.detections.length;
+                    
+                    const item = document.createElement('div');
+                    item.className = 'detection-item';
+                    item.innerHTML = `
+                        <div class="detection-item-label">${detectorName.toUpperCase()}</div>
+                        <div class="detection-item-value">${count}</div>
+                    `;
+                    detectionInfo.appendChild(item);
+                }
+            }
+            
+            detectionInfo.style.display = hasDetections ? 'grid' : 'none';
+        }
+        
+        // Update statistics
+        function updateStats(results) {
+            if (!results) {
+                document.getElementById('personCount').textContent = '0';
+                document.getElementById('vehicleCount').textContent = '0';
+                document.getElementById('faceCount').textContent = '0';
+                return;
+            }
+            let personCount = 0;
+            let vehicleCount = 0;
+            let faceCount = 0;
+            
+            if (results.person && Array.isArray(results.person.detections)) personCount = results.person.detections.length;
+            if (results.vehicle && Array.isArray(results.vehicle.detections)) vehicleCount = results.vehicle.detections.length;
+            if (results.face && Array.isArray(results.face.detections)) faceCount = results.face.detections.length;
+            
+            document.getElementById('personCount').textContent = personCount;
+            document.getElementById('vehicleCount').textContent = vehicleCount;
+            document.getElementById('faceCount').textContent = faceCount;
+            
+            // Update FPS
+            const currentTime = Date.now();
+            if (lastFrameTime > 0) {
+                const deltaTime = (currentTime - lastFrameTime) / 1000;
+                fpsCounter = Math.round(1 / deltaTime);
+            }
+            lastFrameTime = currentTime;
+            document.getElementById('fpsCounter').textContent = fpsCounter;
+        }
+        
+        // Show status message
+        function showStatusMessage(message) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.style.display = 'block';
+            
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Initialize on load
+        window.onload = init;
+    </script>
+</body>
+</html>

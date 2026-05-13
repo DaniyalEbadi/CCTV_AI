@@ -1,0 +1,20 @@
+{
+  "settings_version": "0.0.6",
+  "datasets_dir": "C:\\Users\\Dani\\Desktop\\go2rtc-master\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "af915561fad7158f27ff7081564866795bbdc892873c1650ddfa542a4b48eef4",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "hub": true,
+  "mlflow": true,
+  "neptune": true,
+  "raytune": true,
+  "tensorboard": true,
+  "wandb": false,
+  "vscode_msg": true
+}

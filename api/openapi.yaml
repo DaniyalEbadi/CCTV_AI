@@ -1,0 +1,1898 @@
+# ============================================
+# OPENAPI SPECIFICATION - VERSION 3.1.0
+# ============================================
+# NOTE: This document is a heavily commented OpenAPI 3.1.0 description of go2rtc.
+# All comments begin with '#' and do not change the actual API schema or behavior.
+# The goal: explain each endpoint in depth, list practical usage, show examples,
+# describe expected side-effects, error cases, and typical client workflows.
+
+openapi: 3.1.0
+
+info:
+  # Title of the API (human-friendly)
+  title: go2rtc
+
+  # Licensing: MIT (per original file)
+  license: { name: MIT, url: https://opensource.org/licenses/MIT }
+
+  # API version identifier (documentation focused)
+  version: 1.0.0
+
+  # Link to project repository or contact
+  contact: { url: https://github.com/AlexxIT/go2rtc }
+
+  # Long description with purpose and supported protocols
+  description: |
+    Ultimate camera streaming application with support RTSP, RTMP, HTTP-FLV, WebRTC, MSE, HLS, MP4, MJPEG, HomeKit, FFmpeg, etc.
+    # Key capability: Multi-protocol streaming converter/bridge
+    #
+    # High-level purpose of go2rtc:
+    # - Accept input from many camera/protocol types (RTSP, RTMP, HTTP, FFmpeg inputs).
+    # - Convert / repackage / relay those inputs into many output types (WebRTC, HLS, MSE, MP4, MJPEG).
+    # - Provide a lightweight API for discovery, stream lifecycle management, and debugging.
+
+# ============================================
+# SERVER CONFIGURATION
+# ============================================
+servers:
+  - url: http://localhost:1984  # Default local API endpoint
+    # This informs clients and docs (Swagger UI) of the base URL.
+    # When deploying inside Docker or on a different host/port, update this URL.
+    # Note: API clients should respect CORS and network policies of the host.
+
+# ============================================
+# REUSABLE COMPONENTS
+# ============================================
+# Components hold reusable parameters and responses referenced throughout the spec.
+components:
+  parameters:
+    # ----------------------------
+    # stream_src_path (path parameter)
+    # ----------------------------
+    # Usage: When the stream identifier is part of the URL path, e.g. /api/streams/{src}
+    # Purpose: Identify which stream (by name) the request targets.
+    # Notes:
+    # - Path parameters are always required by OpenAPI; the server enforces presence.
+    # - The 'src' name is arbitrary but commonly a friendly name (camera1, backdoor, etc.).
+    stream_src_path:
+      name: src
+      in: path
+      description: Source stream name
+      required: true
+      schema: { type: string }
+      example: camera1
+
+    # ----------------------------
+    # stream_dst_path (path parameter)
+    # ----------------------------
+    # Usage: When an endpoint requires a destination stream name as part of path.
+    # Purpose: Target stream that will receive forwarded content.
+    # Example: /api/streams/{dst} used in some implementations.
+    stream_dst_path:
+      name: dst
+      in: path
+      description: Destination stream name
+      required: true
+      schema: { type: string }
+      example: camera1
+
+    # ----------------------------
+    # stream_src_query (query parameter)
+    # ----------------------------
+    # Usage: When the source is passed as a query parameter rather than the path.
+    # Purpose: This is flexible: clients can create streams without changing the URL path.
+    # Example: PUT /api/streams?src=rtsp://...
+    stream_src_query:
+      name: src
+      in: query
+      description: Source stream name
+      required: true
+      schema: { type: string }
+      example: camera1
+
+    # ----------------------------
+    # mp4_filter (query parameter)
+    # ----------------------------
+    # Purpose: Filter which codecs are included/exported inside MP4 container.
+    # Why it exists:
+    # - Some players or clients require specific codec combinations inside MP4.
+    # - Allows server to include/exclude audio or special codecs like FLAC.
+    # Values:
+    # - "" (default) — server default policy
+    # - flac — include FLAC audio
+    # - all — include all codecs (less compatibility but maximum fidelity)
+    mp4_filter:
+      name: mp4
+      in: query
+      description: MP4 codecs filter
+      required: false
+      schema:
+        type: string
+        enum: [ "", flac, all ]
+      example: flac
+
+    # ----------------------------
+    # video_filter (query parameter)
+    # ----------------------------
+    # Purpose: Request only certain video codecs when multiple are available.
+    # Typical use:
+    # - A browser wants h264 only (for broad compatibility)
+    # - A hardware device wants mjpeg or h265 specifically
+    # Accepts comma-separated lists, e.g. video=h264,h265
+    video_filter:
+      name: video
+      in: query
+      description: Video codecs filter
+      schema:
+        type: string
+        enum: [ "", all, h264, h265, mjpeg ]
+      example: h264,h265
+
+    # ----------------------------
+    # audio_filter (query parameter)
+    # ----------------------------
+    # Purpose: Restrict audio stream codecs; useful when the client supports only certain audio.
+    # Examples:
+    # - audio=aac for modern browsers
+    # - audio=pcmu for compatibility with SIP devices
+    audio_filter:
+      name: audio
+      in: query
+      description: Audio codecs filter
+      schema:
+        type: string
+        enum: [ "", all, aac, opus, pcm, pcmu, pcma ]
+      example: aac
+
+  responses:
+    # ----------------------------
+    # discovery response
+    # ----------------------------
+    # Standard response payload for endpoints that enumerate or discover streams/devices.
+    # Example format:
+    # { "streams": [ { "name": "Camera 1", "url": "..." } ] }
+    # Notes:
+    # - Useful when clients ask the server to scan the network or list streams configured in the YAML.
+    discovery:
+      description: ""
+      content:
+        application/json:
+          example: { streams: [ { "name": "Camera 1","url": "..." } ] }
+
+    # ----------------------------
+    # webtorrent response
+    # ----------------------------
+    # Response format for endpoints that create or return WebTorrent information.
+    # Fields:
+    # - share: Torrent info hash or magnet link (short form in example)
+    # - pwd: Optional password when sharing protected content
+    webtorrent:
+      description: ""
+      content:
+        application/json:
+          example: { share: AKDypPy4zz, pwd: H0Km1HLTTP }
+          # share: Torrent info hash/magnet link
+          # pwd: Optional password for protected content
+
+# ============================================
+# API TAGS (Endpoint Grouping)
+# ============================================
+# Tags are used by documentation UIs (Swagger UI) to group endpoints.
+tags:
+  - name: Application
+    description: "[Module: API](https://github.com/AlexxIT/go2rtc#module-api)"
+  - name: Config
+    description: "[Configuration](https://github.com/AlexxIT/go2rtc#configuration)"
+  - name: Streams list
+    description: "[Module: Streams](https://github.com/AlexxIT/go2rtc#module-streams)"
+  - name: Consume stream
+    description: "Endpoints for clients that will read/consume streams"
+  - name: Snapshot
+    description: "Endpoints to capture single-frame images from streams"
+  - name: Produce stream
+    description: "Endpoints that allow pushing or creating streams"
+  - name: Discovery
+    description: "Network or device/stream discovery functionality"
+  - name: ONVIF
+    description: "Support for ONVIF camera discovery and control"
+  - name: RTSPtoWebRTC
+    description: "Helpers to convert RTSP feeds to WebRTC streams"
+  - name: WebTorrent
+    description: "[Module: WebTorrent](https://github.com/AlexxIT/go2rtc#module-webtorrent)"
+  - name: Debug
+    description: "Debugging and diagnostics endpoints"
+
+# ============================================
+# API ENDPOINTS - APPLICATION MANAGEMENT
+# ============================================
+paths:
+  # --------------------------------------------
+  # /api - Get application info
+  # --------------------------------------------
+  # What it does:
+  # - Provides basic runtime information about the go2rtc instance.
+  # - Typically used for health checks, UI header info, or diagnostics.
+  # Typical client-side usage:
+  # - On startup, UI queries GET /api to display hostname, config path, version.
+  # - Automated monitoring systems can poll this to detect that the service is up.
+  #
+  # Response fields (from example):
+  # - config_path: Path to the current YAML configuration file.
+  # - host: Host:port where API is accessible.
+  # - rtsp.listen: The RTSP server port listen address.
+  # - rtsp.default_query: Default stream query params applied on RTSP connections.
+  # - version: go2rtc binary version (useful to detect upgrades).
+  /api:
+    get:
+      summary: Get application info
+      tags: [ Application ]
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              example: { 
+                config_path: "/config/go2rtc.yaml",  # Config file location
+                host: "192.168.1.123:1984",  # Server address
+                rtsp: { 
+                  listen: ":8554",  # RTSP server port
+                  default_query: "video&audio"  # Default stream params
+                },
+                version: "1.5.0"  # Application version
+              }
+          # Use case: Health check, configuration verification
+          #
+          # Extended notes:
+          # - This endpoint should be lightweight and not trigger expensive scans.
+          # - If you see stale version/config_path values, server may be running in a container with a different mount.
+          # - Some deployments use GET /api as the readiness probe for orchestrators (Kubernetes etc).
+
+  # --------------------------------------------
+  # /api/exit - Graceful application shutdown
+  # --------------------------------------------
+  # What it does:
+  # - Triggers application shutdown.
+  # - Accepts an optional "code" query parameter (integer) to indicate exit code.
+  # Side effects:
+  # - Active streams will be terminated.
+  # - Consumers/producers may get connection resets.
+  # Use cases:
+  # - Remote shutdown for maintenance.
+  # - Controlled termination in automation scripts.
+  #
+  # Important safety note:
+  # - Only expose this endpoint on trusted networks. If unauthenticated and publicly accessible it allows remote shutdown.
+  # - Consider firewalling or protecting this endpoint with authentication in production.
+  /api/exit:
+    post:
+      summary: Close application
+      tags: [ Application ]
+      parameters:
+        - name: code
+          in: query
+          description: Application exit code
+          required: false
+          schema: { type: integer }
+          example: 100  # Custom exit code for monitoring/scripting
+      responses:
+        default:
+          description: Default response
+      # Use case: Automated shutdown, container management
+      #
+      # Example:
+      # curl -X POST "http://localhost:1984/api/exit?code=0"
+      #
+      # Behavior:
+      # - Server will return a default response and then exit (depends on implementation whether it returns before or after terminating).
+      # - Some orchestrators may restart the container; if that's the case, use restart endpoint below instead.
+
+  # --------------------------------------------
+  # /api/restart - Restart the daemon
+  # --------------------------------------------
+  # What it does:
+  # - Triggers a restart of the go2rtc daemon process.
+  # Use cases:
+  # - Apply configuration changes that require a full restart.
+  # - Recover from transient runtime errors without manually restarting the container.
+  # Notes:
+  # - Like /api/exit, protect this endpoint in production.
+  # - Restart is usually better than exit for automated systems because it attempts to relaunch the process.
+  /api/restart:
+    post:
+      summary: Restart Daemon
+      description: Restarts the daemon.
+      tags: [ Application ]
+      responses:
+        default:
+          description: Default response
+      # Use case: Apply configuration changes, recover from errors
+      #
+      # Example:
+      # curl -X POST "http://localhost:1984/api/restart"
+      #
+      # Behavior:
+      # - The process will attempt to gracefully close resources then spawn a fresh instance.
+      # - Depending on host/container, restart may be handled by an init system; test your environment.
+
+  # ============================================
+  # CONFIGURATION MANAGEMENT
+  # ============================================
+  # These endpoints let you read and modify the main go2rtc YAML configuration.
+  # IMPORTANT: Changing configuration may affect all running streams and services.
+
+  /api/config:
+    # ----------------------------
+    # GET: Read current configuration
+    # ----------------------------
+    # What it does:
+    # - Returns the raw YAML configuration file contents.
+    # - Good for backup, UI display, or verifying configuration loaded by the daemon.
+    # Notes:
+    # - This endpoint returns the content of the config file as-is.
+    # - It may contain credentials or sensitive information. Only call from trusted clients.
+    get:
+      summary: Get main config file content
+      tags: [ Config ]
+      responses:
+        "200":
+          description: ""
+          content:
+            application/yaml: { example: "streams:..." }
+      # Returns YAML configuration file content
+
+    # ----------------------------
+    # POST: Replace entire configuration
+    # ----------------------------
+    # What it does:
+    # - Overwrites the entire configuration file with the request body.
+    # - Immediately effective depending on how the daemon monitors config changes (may require restart).
+    # WARNING:
+    # - This replaces the whole configuration. If you omit fields you'll lose them.
+    # - Use with care: misconfiguration may break stream definitions, credentials, or routing.
+    post:
+      summary: Rewrite main config file
+      tags: [ Config ]
+      requestBody:
+        content:
+          "*/*": { example: "streams:..." }  # Accepts YAML config
+      responses:
+        default:
+          description: Default response
+      # WARNING: Completely replaces config file
+
+    # ----------------------------
+    # PATCH: Partial update / merge configuration
+    # ----------------------------
+    # What it does:
+    # - Merges provided fields into the existing configuration (does not replace whole file).
+    # - Safer for automated updates (e.g., add a new stream without touching others).
+    # Notes:
+    # - The exact merge semantics depend on the server implementation (deep merge vs shallow merge).
+    # - Always verify resulting configuration via GET /api/config after a patch.
+    patch:
+      summary: Merge changes to main config file
+      tags: [ Config ]
+      requestBody:
+        content:
+          "*/*": { example: "streams:..." }
+      responses:
+        default:
+          description: Default response
+      # Safer: Only updates provided fields, preserves others
+
+  # ============================================
+  # STREAM MANAGEMENT
+  # ============================================
+  # Endpoints to list, create, modify, delete and forward streams.
+  # Streams are logical objects: a "name" (friendly id) maps to one or more producers (sources)
+  # and many consumers (clients viewing the stream).
+  #
+  # Producer = a source feeding go2rtc (RTSP, RTMP, HTTP, FFmpeg, etc.)
+  # Consumer = a client receiving the stream (browser via WebRTC/HLS, RTSP client, etc.)
+  #
+  # Important lifecycle notes:
+  # - Streams can be created dynamically (PUT) or declared in the YAML config.
+  # - A stream's "producer" is established when go2rtc connects to the source (it may retry on failure).
+  # - The server may keep streams alive for a TTL even if no consumers connected to allow faster reconnection.
+
+  /api/streams:
+    # ----------------------------
+    # GET: List all active streams with producers/consumers
+    # ----------------------------
+    # What it does:
+    # - Returns an object with keys equal to stream names and values describing their producers & consumers.
+    # - Useful for monitoring, health checks, and building UIs.
+    # Typical fields returned:
+    # - producers: array of objects describing active source connections (URI, status, codec info)
+    # - consumers: array of connected clients (type: WebRTC/HLS/RTSP, remote IP, codec preferences)
+    get:
+      summary: Get all streams info
+      tags: [ Streams list ]
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json: { 
+              example: { 
+                camera1: { 
+                  producers: [ ],  # Sources producing to this stream
+                  consumers: [ ]   # Clients consuming from this stream
+                } 
+              } 
+            }
+      # Monitoring: See active streams, connections, load
+
+    # ----------------------------
+    # PUT: Create a new stream from a source URL
+    # ----------------------------
+    # What it does:
+    # - Creates a new logical stream name and attaches a producer described by the 'src' URI.
+    # - The server will attempt to connect to the source (RTSP/RTMP/FFmpeg/etc).
+    # Parameters:
+    # - src (required query): Source URI (e.g., rtsp://user:pass@host/stream)
+    # - name (optional query): Desired stream name; if omitted the server may auto-generate one.
+    # Use case:
+    # - Dynamically add a camera at runtime without editing YAML and restarting.
+    # Behavior:
+    # - If the source is reachable, producer connects and decoder/encoder negotiation occurs.
+    # - If the source requires authentication, ensure credentials are included in the URI or configured elsewhere.
+    put:
+      summary: Create new stream
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream source (URI)
+          required: true
+          schema: { type: string }
+          example: "rtsp://rtsp:12345678@192.168.1.123/av_stream/ch0"
+          # Supported URIs: rtsp://, rtmp://, http://, ffmpeg://, etc.
+        - name: name
+          in: query
+          description: Stream name
+          required: false  # Optional - auto-generated if not provided
+          schema: { type: string }
+          example: camera1
+      responses:
+        default:
+          description: Default response
+      # Use case: Add new camera dynamically
+      #
+      # Practical examples:
+      # - curl -X PUT "http://localhost:1984/api/streams?src=rtsp://user:pass@192.168.0.10:554/stream&name=frontdoor"
+      #
+      # Edge cases:
+      # - If a stream with the same name already exists, server may return an error or update existing stream depending on implementation.
+      # - If the source is unreachable, server may still create the logical stream entry but keep producer status "disconnected" and retry later.
+
+    # ----------------------------
+    # PATCH: Update an existing stream's source
+    # ----------------------------
+    # What it does:
+    # - Replace or change the producer URI for an existing stream name.
+    # - Typically used to point a logical stream to a backup camera or a new physical device.
+    # Parameters:
+    # - src: New source URI (required)
+    # - name: Existing stream name that will be changed (required)
+    # Behavior:
+    # - The server will attempt to gracefully stop the old producer and start the new one.
+    patch:
+      summary: Update stream source
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream source (URI)
+          required: true
+          schema: { type: string }
+          example: "rtsp://rtsp:12345678@192.168.1.123/av_stream/ch0"
+        - name: name
+          in: query
+          description: Stream name
+          required: true  # Must specify which stream to update
+          schema: { type: string }
+          example: camera1
+      responses:
+        default:
+          description: Default response
+      # Use case: Change camera URL, failover to backup source
+      #
+      # Important:
+      # - This operation should be idempotent (patching twice with same src is harmless).
+      # - If the new src is invalid, the server should preserve the old producer until the new one is ready (implementation dependent).
+
+    # ----------------------------
+    # DELETE: Remove a stream
+    # ----------------------------
+    # What it does:
+    # - Deletes the logical stream and disconnects any producers/consumers attached to it.
+    # Parameters:
+    # - src (query): Stream name to delete (required).
+    # Use cases:
+    # - Remove temporary test streams.
+    # - Cleanup stale streams no longer needed.
+    delete:
+      summary: Delete stream
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream name
+          required: true
+          schema: { type: string }
+          example: camera1
+      responses:
+        default:
+          description: Default response
+      # Use case: Remove temporary or unused streams
+      #
+      # Behavior:
+      # - Deleting a stream should free resources and cause consumer connections to end (clients will see disconnects).
+      # - Some implementations may keep the stream metadata for a short TTL for audit / recovery purposes.
+
+    # ----------------------------
+    # POST: Forward/pipe one stream to another
+    # ----------------------------
+    # What it does:
+    # - Redirect or pipe content from a "src" (most often an FFmpeg or file source) into an existing destination stream name "dst".
+    # - This is the "stream to camera" scenario where you supply an audio track or alternate media to an existing stream.
+    # Parameters:
+    # - src: Source URI (e.g., ffmpeg:... or http://... resource)
+    # - dst: Destination stream name (where the server will publish the piped data).
+    post:
+      summary: Send stream from source to destination
+      description: "[Stream to camera](https://github.com/AlexxIT/go2rtc#stream-to-camera)"
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream source (URI)
+          required: true
+          schema: { type: string }
+          example: "ffmpeg:http://example.com/song.mp3#audio=pcma#input=file"
+          # FFmpeg source with audio format (PCMA) and input type (file)
+        - name: dst
+          in: query
+          description: Destination stream name
+          required: true
+          schema: { type: string }
+          example: camera1
+      responses:
+        default:
+          description: Default response
+      # Use case: Add audio to video stream, create composite streams
+      #
+      # Practical explanation:
+      # - The src in this example includes the ffmpeg: prefix meaning go2rtc will internally spawn ffmpeg to read the given file/URL and transcode/repackage audio to the requested format.
+      # - The server then attaches the ffmpeg output to the logical stream named 'dst', effectively mixing audio into an existing video stream for consumers.
+      #
+      # Considerations:
+      # - This may require CPU for transcoding (FFmpeg) — monitor resource usage.
+      # - Ensure that mixing formats (e.g., audio codec vs stream consumers) are compatible or the server will transcode.
+
+# --------------------------------------------
+# End of provided endpoints in original spec
+# --------------------------------------------
+
+# ============================================
+# Additional explanatory notes (not altering API)
+# ============================================
+#
+# Common client flows (examples):
+#
+# 1) Add a camera and watch in browser (WebRTC):
+#    - Add stream:
+#      PUT /api/streams?src=rtsp://user:pass@192.168.1.10:554/stream&name=frontdoor
+#    - Open browser client that requests WebRTC for stream 'frontdoor' (client-specific URL, e.g. /api/streams/frontdoor/rtc)
+#    - If the stream's producer establishes, the server will negotiate codecs and deliver media via WebRTC.
+#
+# 2) Add audio to a stream (e.g., background music or TTS):
+#    - POST /api/streams?src=ffmpeg:http://example.com/music.mp3#audio=pcma#input=file&dst=frontdoor
+#    - Server launches ffmpeg input and merges audio into 'frontdoor' stream as a producer.
+#
+# Error handling (general guidance):
+# - 400 Bad Request: Malformed request or missing required params.
+# - 401/403: Authentication required or forbidden (if server is protected).
+# - 404 Not Found: Stream name doesn't exist for operations that require an existing stream.
+# - 409 Conflict: Trying to create a stream that already exists (implementation dependent).
+# - 5xx: Server-side failures (transcoding errors, out-of-memory, etc.)
+#
+# Security considerations:
+# - The API touches sensitive resources (camera credentials, streams, the ability to stop the server).
+#   Protect the API with:
+#     - Network-level restrictions (firewalls, private subnets).
+#     - Authentication and authorization (API keys, JWT, basic auth where supported).
+#     - TLS (serve over HTTPS) to protect credentials in transit.
+# - Avoid exposing the /api/exit and /api/restart endpoints publicly.
+#
+# Performance & operational notes:
+# - Streaming and transcoding are CPU/memory intensive activities. Monitor host utilization.
+# - For many simultaneous streams, consider horizontal scaling or using separate machines for heavy encoding tasks (ffmpeg).
+# - Use GET /api/streams to observe active load, producers, and consumers.
+#
+# Integration & automation tips:
+# - Use PUT /api/streams from orchestration scripts to dynamically bring cameras online (e.g., when a new camera is deployed).
+# - Use PATCH /api/config to add streams in a safe merge operation if you prefer config-as-code (less disruptive than full POST rewrite).
+# - Use restart instead of exit when you want the process to come back up automatically via container supervisor.
+#
+# Observability:
+# - Consider adding logging of API calls in front of go2rtc (proxy) for audit trails (who called exit/restart, when streams are added).
+# - Health checks:
+#   - Use /api as a simple readiness or liveness check in orchestration systems.
+#
+# Troubleshooting quick checklist:
+# - If consumers can't view a stream:
+#   1) Verify the producer is connected: GET /api/streams and inspect producers array.
+#   2) If the producer is disconnected, test the source URI directly with VLC/FFmpeg to ensure network/credentials are correct.
+#   3) Check server logs for codec negotiation or ffmpeg errors.
+# - If POST (stream-to-camera) doesn't add audio:
+#   - Confirm ffmpeg logs indicate successful decoding and packet output.
+#   - Ensure destination stream consumers support the added audio codec.
+#
+# This file intentionally avoids adding endpoints not present in the original spec.
+# All comments are explanatory only and can be copied to documentation or used to annotate
+# your API reference or developer onboarding materials.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /api/preload:
+      put:
+      # ------------------------------------------------------------------------
+      # Preload a New Stream
+      # ------------------------------------------------------------------------
+      # Establishes a preloaded connection to the specified stream source.
+      # Preloading creates a persistent connection that remains active even when
+      # no clients are currently consuming the stream, reducing connection
+      # establishment time for subsequent client requests.
+      #
+      # Query Parameters:
+      #   src:        Required. The name of the stream source as configured in
+      #               go2rtc. This corresponds to a stream name defined in the
+      #               configuration file or dynamic sources.
+      #   video:      Optional. Comma-separated list of preferred video codecs.
+      #               Use "all" to accept all available video codecs, or specify
+      #               specific codecs like "h264,h265" to filter codec selection.
+      #               This helps in transcoding scenarios where specific output
+      #               codecs are required.
+      #   audio:      Optional. Comma-separated list of preferred audio codecs
+      #               for the main audio track. Similar to video parameter,
+      #               accepts "all" or specific codecs like "aac,opus".
+      #   microphone: Optional. Comma-separated list of preferred audio codecs
+      #               specifically for microphone/input audio tracks. Used when
+      #               the stream has separate microphone audio channels.
+      # ------------------------------------------------------------------------
+        summary: Preload new stream
+        tags: [ Streams list ]
+        parameters:
+          - name: src
+            in: query
+            description: Stream source (name)
+            required: true
+            schema: { type: string }
+            example: "camera1"
+          - name: video
+            in: query
+            description: Video codecs filter
+            required: false
+            schema: { type: string }
+            example: all,h264,h265,...
+          - name: audio
+            in: query
+            description: Audio codecs filter
+            required: false
+            schema: { type: string }
+            example: all,aac,opus,...
+          - name: microphone
+            in: query
+            description: Microphone codecs filter
+            required: false
+            schema: { type: string }
+            example: all,aac,opus,...
+        responses:
+              default:
+                description: Default response
+      delete:
+      # ------------------------------------------------------------------------
+      # Delete Preloaded Stream
+      # ------------------------------------------------------------------------
+      # Terminates and removes a preloaded stream connection. This releases
+      # resources associated with the preloaded stream and closes the connection
+      # to the source. Useful for cleaning up unused preloaded streams to free
+      # system resources.
+      # ------------------------------------------------------------------------
+        summary: Delete preloaded stream
+        tags: [ Streams list ]
+          parameters:
+          - name: src
+            in: query
+            description: Stream source (name)
+            required: true
+            schema: { type: string }
+            example: "camera1"
+        responses:
+              default:
+                description: Default response
+
+
+
+# ==============================================================================
+# Stream Preloading API Endpoint
+# ==============================================================================
+# This endpoint manages stream preloading functionality. Preloading allows
+# go2rtc to establish a connection to a stream source in advance, reducing
+# latency when the stream is later consumed by clients. This is particularly
+# useful for maintaining persistent connections to camera streams.
+# ==============================================================================
+
+/api/preload:
+    put:
+      # ------------------------------------------------------------------------
+      # Preload a New Stream
+      # ------------------------------------------------------------------------
+      # Establishes a preloaded connection to the specified stream source.
+      # Preloading creates a persistent connection that remains active even when
+      # no clients are currently consuming the stream, reducing connection
+      # establishment time for subsequent client requests.
+      #
+      # Query Parameters:
+      #   src:        Required. The name of the stream source as configured in
+      #               go2rtc. This corresponds to a stream name defined in the
+      #               configuration file or dynamic sources.
+      #   video:      Optional. Comma-separated list of preferred video codecs.
+      #               Use "all" to accept all available video codecs, or specify
+      #               specific codecs like "h264,h265" to filter codec selection.
+      #               This helps in transcoding scenarios where specific output
+      #               codecs are required.
+      #   audio:      Optional. Comma-separated list of preferred audio codecs
+      #               for the main audio track. Similar to video parameter,
+      #               accepts "all" or specific codecs like "aac,opus".
+      #   microphone: Optional. Comma-separated list of preferred audio codecs
+      #               specifically for microphone/input audio tracks. Used when
+      #               the stream has separate microphone audio channels.
+      # ------------------------------------------------------------------------
+      summary: Preload new stream
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream source (name)
+          required: true
+          schema: { type: string }
+          example: "camera1"
+        - name: video
+          in: query
+          description: Video codecs filter
+          required: false
+          schema: { type: string }
+          example: all,h264,h265,...
+        - name: audio
+          in: query
+          description: Audio codecs filter
+          required: false
+          schema: { type: string }
+          example: all,aac,opus,...
+        - name: microphone
+          in: query
+          description: Microphone codecs filter
+          required: false
+          schema: { type: string }
+          example: all,aac,opus,...
+      responses:
+            default:
+              description: Default response
+    delete:
+      # ------------------------------------------------------------------------
+      # Delete Preloaded Stream
+      # ------------------------------------------------------------------------
+      # Terminates and removes a preloaded stream connection. This releases
+      # resources associated with the preloaded stream and closes the connection
+      # to the source. Useful for cleaning up unused preloaded streams to free
+      # system resources.
+      # ------------------------------------------------------------------------
+      summary: Delete preloaded stream
+      tags: [ Streams list ]
+      parameters:
+        - name: src
+          in: query
+          description: Stream source (name)
+          required: true
+          schema: { type: string }
+          example: "camera1"
+      responses:
+            default:
+              description: Default response
+
+# ==============================================================================
+# Stream Consumption API Endpoints
+# ==============================================================================
+# These endpoints provide various methods for consuming streams in different
+# formats and protocols. Each endpoint accepts a source parameter to specify
+# which stream to consume, supporting real-time streaming to clients.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Stream Information Endpoint
+# ------------------------------------------------------------------------------
+/api/streams?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # Get Stream Information
+      # ------------------------------------------------------------------------
+      # Retrieves detailed metadata about a stream in JSON format. This includes
+      # information about producers (stream sources) and consumers (connected
+      # clients). Useful for monitoring stream status, debugging, and system
+      # administration.
+      #
+      # Response includes:
+      #   producers: Array of source URLs and their connection status
+      #   consumers: Array of connected clients and their consumption details
+      # ------------------------------------------------------------------------
+      summary: Get stream info in JSON format
+      tags: [ Consume stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              example: { producers: [ { url: "rtsp://rtsp:12345678@192.168.1.123/av_stream/ch0" } ], consumers: [ ] }
+
+# ------------------------------------------------------------------------------
+# WebRTC Streaming Endpoint (WHEP)
+# ------------------------------------------------------------------------------
+/api/webrtc?src={src}:
+    post:
+      # ------------------------------------------------------------------------
+      # WebRTC Stream Consumption (WHEP)
+      # ------------------------------------------------------------------------
+      # Establishes a WebRTC connection for consuming a stream using the
+      # WebRTC-HTTP Egress Protocol (WHEP). This endpoint supports multiple
+      # request formats including standard WHEP SDP offers, JSON-wrapped SDP,
+      # and raw SDP. WebRTC provides low-latency streaming suitable for
+      # real-time applications.
+      #
+      # Supported Content-Types:
+      #   application/json:    JSON object containing SDP offer
+      #   application/sdp:     Raw SDP offer (WHEP standard)
+      #   */*:                 Raw SDP offer (compatibility)
+      #
+      # The response format depends on the request Content-Type, supporting
+      # either JSON-wrapped answers or raw SDP answers.
+      # ------------------------------------------------------------------------
+      summary: Get stream in WebRTC format (WHEP)
+      description: "[Module: WebRTC](https://github.com/AlexxIT/go2rtc#module-webrtc)"
+      tags: [ Consume stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      requestBody:
+        description: |
+          Support:
+          - JSON format (`Content-Type: application/json`)
+          - WHEP standard (`Content-Type: application/sdp`)
+          - raw SDP (`Content-Type: anything`)
+        required: true
+        content:
+          application/json: { example: { type: offer, sdp: "v=0..." } }
+          "application/sdp": { example: "v=0..." }
+          "*/*": { example: "v=0..." }
+
+      responses:
+        "200":
+          description: "Response on JSON or raw SDP"
+          content:
+            application/json: { example: { type: answer, sdp: "v=0..." } }
+            application/sdp: { example: "v=0..." }
+        "201":
+          description: "Response on `Content-Type: application/sdp`"
+          content:
+            application/sdp: { example: "v=0..." }
+
+# ------------------------------------------------------------------------------
+# MP4 Progressive Download Endpoint
+# ------------------------------------------------------------------------------
+/api/stream.mp4?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # MP4 Progressive Streaming
+      # ------------------------------------------------------------------------
+      # Streams content in MP4 format using HTTP progressive download. This
+      # endpoint generates an MP4 file that can be played while downloading,
+      # compatible with most media players and browsers. Supports optional
+      # parameters for limiting duration, setting filenames, and codec filtering.
+      #
+      # Query Parameters:
+      #   duration:   Optional. Limits streaming to specified number of seconds.
+      #               Useful for creating short clips or limiting resource usage.
+      #   filename:   Optional. Suggests a filename for download when client
+      #               saves the stream. Browsers may use this as default save name.
+      #   Additional filters: Refer to MP4, video, and audio filter parameters
+      #               for transcoding and codec selection options.
+      # ------------------------------------------------------------------------
+      summary: Get stream in MP4 format (HTTP progressive)
+      description: "[Module: MP4](https://github.com/AlexxIT/go2rtc#module-mp4)"
+      tags: [ Consume stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+        - name: duration
+          in: query
+          description: Limit the length of the stream in seconds
+          required: false
+          schema: { type: string }
+          example: 15
+        - name: filename
+          in: query
+          description: Download as a file with this name
+          required: false
+          schema: { type: string }
+          example: camera1.mp4
+        - $ref: "#/components/parameters/mp4_filter"
+        - $ref: "#/components/parameters/video_filter"
+        - $ref: "#/components/parameters/audio_filter"
+      responses:
+        200:
+          description: ""
+          content: { video/mp4: { example: "" } }
+
+# ------------------------------------------------------------------------------
+# HLS Streaming Endpoint
+# ------------------------------------------------------------------------------
+/api/stream.m3u8?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # HTTP Live Streaming (HLS)
+      # ------------------------------------------------------------------------
+      # Generates HLS (HTTP Live Streaming) playlist and segments for the
+      # specified stream. HLS is widely supported by browsers, mobile devices,
+      # and media players. The response is an M3U8 playlist that references
+      # video segments in MPEG2-TS format. Supports adaptive bitrate streaming
+      # when configured.
+      #
+      # This endpoint returns the master playlist that clients use to request
+      # media segments. The stream is divided into small chunks for efficient
+      # delivery over HTTP.
+      # ------------------------------------------------------------------------
+      summary: Get stream in HLS format
+      description: "[Module: HLS](https://github.com/AlexxIT/go2rtc#module-hls)"
+      tags: [ Consume stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+        - $ref: "#/components/parameters/mp4_filter"
+        - $ref: "#/components/parameters/video_filter"
+        - $ref: "#/components/parameters/audio_filter"
+      responses:
+        200:
+          description: ""
+          content: { application/vnd.apple.mpegurl: { example: "" } }
+
+# ------------------------------------------------------------------------------
+# MJPEG Streaming Endpoint
+# ------------------------------------------------------------------------------
+/api/stream.mjpeg?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # Motion JPEG Streaming
+      # ------------------------------------------------------------------------
+      # Streams video as a series of JPEG images using the multipart/x-mixed-replace
+      # content type. MJPEG is a simple streaming format supported by many
+      # browsers and applications. Each video frame is sent as a separate JPEG
+      # image within a multipart HTTP response.
+      #
+      # Note: This format typically has higher bandwidth usage compared to
+      # compressed video formats but is universally compatible and requires
+      # no special codec support on the client side.
+      # ------------------------------------------------------------------------
+      summary: Get stream in MJPEG format
+      description: "[Module: MJPEG](https://github.com/AlexxIT/go2rtc#module-mjpeg)"
+      tags: [ Consume stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200:
+          description: ""
+          content: { multipart/x-mixed-replace: { example: "" } }
+
+# ==============================================================================
+# Snapshot API Endpoints
+# ==============================================================================
+# These endpoints provide single-frame/short-clip snapshots from streams.
+# Useful for preview images, thumbnails, or quick status checks without
+# establishing a full streaming session.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# JPEG Snapshot Endpoint
+# ------------------------------------------------------------------------------
+/api/frame.jpeg?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # JPEG Snapshot
+      # ------------------------------------------------------------------------
+      # Captures and returns a single JPEG image from the current stream.
+      # This provides a still image snapshot suitable for thumbnails, previews,
+      # or periodic status images. The response is a standard JPEG image that
+      # can be displayed in browsers or saved as a file.
+      #
+      # Each request captures a fresh frame from the stream. For periodic
+      # snapshots, clients should poll this endpoint at desired intervals.
+      # ------------------------------------------------------------------------
+      summary: Get snapshot in JPEG format
+      description: "[Module: MJPEG](https://github.com/AlexxIT/go2rtc#module-mjpeg)"
+      tags: [ Snapshot ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200:
+          description: ""
+          content: { image/jpeg: { example: "" } }
+
+# ------------------------------------------------------------------------------
+# MP4 Snapshot Endpoint
+# ------------------------------------------------------------------------------
+/api/frame.mp4?src={src}:
+    get:
+      # ------------------------------------------------------------------------
+      # MP4 Snapshot (Short Clip)
+      # ------------------------------------------------------------------------
+      # Returns a short MP4 video clip from the stream. Unlike frame.jpeg which
+      # returns a single image, this endpoint returns a brief video segment
+      # (typically a few seconds) that can include both video and audio.
+      # Useful for creating video previews or short clips without establishing
+      # a continuous streaming session.
+      #
+      # The length of the clip is implementation-dependent but is typically
+      # a short duration suitable for preview purposes.
+      # ------------------------------------------------------------------------
+      summary: Get snapshot in MP4 format
+      description: "[Module: MP4](https://github.com/AlexxIT/go2rtc#module-mp4)"
+      tags: [ Snapshot ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200:
+          description: ""
+          content: { video/mp4: { example: "" } }
+
+# ==============================================================================
+# Stream Production API Endpoints
+# ==============================================================================
+# These endpoints allow external sources to publish streams to go2rtc.
+# go2rtc can act as a receiver for various streaming formats, enabling
+# it to function as a media gateway or aggregator.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# WebRTC Stream Production (WHIP)
+# ------------------------------------------------------------------------------
+/api/webrtc?dst={dst}:
+    post:
+      # ------------------------------------------------------------------------
+      # WebRTC Stream Production (WHIP)
+      # ------------------------------------------------------------------------
+      # Accepts incoming WebRTC streams using WebRTC-HTTP Ingestion Protocol
+      # (WHIP). This allows external WebRTC clients (browsers, applications)
+      # to publish media streams to go2rtc. The received stream can then be
+      # redistributed to other clients using any of the consumption endpoints.
+      #
+      # The dst parameter specifies the destination stream name where the
+      # incoming stream will be made available for consumption.
+      # ------------------------------------------------------------------------
+      summary: Post stream in WebRTC format
+      description: "[Incoming: WebRTC/WHIP](https://github.com/AlexxIT/go2rtc#incoming-webrtcwhip)"
+      tags: [ Produce stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_dst_path"
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# FLV Stream Production
+# ------------------------------------------------------------------------------
+/api/stream.flv?dst={dst}:
+    post:
+      # ------------------------------------------------------------------------
+      # FLV Stream Ingestion
+      # ------------------------------------------------------------------------
+      # Accepts incoming streams in FLV (Flash Video) format. FLV is a
+      # container format commonly used in legacy streaming systems and
+      # screen capture tools. The stream is ingested and made available
+      # for redistribution in other formats supported by go2rtc.
+      #
+      # The request body should contain a continuous FLV stream. The dst
+      # parameter specifies the destination stream name.
+      # ------------------------------------------------------------------------
+      summary: Post stream in FLV format
+      description: "[Incoming sources](https://github.com/AlexxIT/go2rtc#incoming-sources)"
+      tags: [ Produce stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_dst_path"
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# MPEG-TS Stream Production
+# ------------------------------------------------------------------------------
+/api/stream.ts?dst={dst}:
+    post:
+      # ------------------------------------------------------------------------
+      # MPEG-TS Stream Ingestion
+      # ------------------------------------------------------------------------
+      # Accepts incoming streams in MPEG-TS (MPEG Transport Stream) format.
+      # MPEG-TS is commonly used in broadcast television, IPTV, and some
+      # camera systems. The stream is ingested and transcoded as needed for
+      # redistribution through go2rtc's various output formats.
+      #
+      # The request body should contain a continuous MPEG-TS stream.
+      # ------------------------------------------------------------------------
+      summary: Post stream in MPEG-TS format
+      description: "[Incoming sources](https://github.com/AlexxIT/go2rtc#incoming-sources)"
+      tags: [ Produce stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_dst_path"
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# MJPEG Stream Production
+# ------------------------------------------------------------------------------
+/api/stream.mjpeg?dst={dst}:
+    post:
+      # ------------------------------------------------------------------------
+      # MJPEG Stream Ingestion
+      # ------------------------------------------------------------------------
+      # Accepts incoming streams in MJPEG (Motion JPEG) format. This endpoint
+      # receives a series of JPEG images typically delivered as multipart
+      # content or sequential JPEG files. The stream is reconstructed and
+      # made available for consumption in various formats.
+      #
+      # Useful for receiving streams from simple IP cameras or applications
+      # that output MJPEG format.
+      # ------------------------------------------------------------------------
+      summary: Post stream in MJPEG format
+      description: "[Incoming sources](https://github.com/AlexxIT/go2rtc#incoming-sources)"
+      tags: [ Produce stream ]
+      parameters:
+        - $ref: "#/components/parameters/stream_dst_path"
+      responses:
+            default:
+              description: Default response
+
+# ==============================================================================
+# Discovery API Endpoints
+# ==============================================================================
+# These endpoints provide device and service discovery capabilities.
+# They help identify available media sources in the network or system
+# that can be integrated with go2rtc.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# DVRIP Camera Discovery
+# ------------------------------------------------------------------------------
+/api/dvrip:
+    get:
+      # ------------------------------------------------------------------------
+      # DVRIP Camera Discovery
+      # ------------------------------------------------------------------------
+      # Discovers DVRIP-compatible cameras on the local network. DVRIP is a
+      # protocol used by many Dahua and compatible IP cameras and DVR/NVR
+      # systems. This endpoint performs network discovery and returns a list
+      # of found devices with their connection details.
+      #
+      # Useful for automatically configuring cameras without manual IP address
+      # entry. Returns device information including model, IP address, and
+      # connection parameters.
+      # ------------------------------------------------------------------------
+      summary: DVRIP cameras discovery
+      description: "[Source: DVRIP](https://github.com/AlexxIT/go2rtc#source-dvrip)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# FFmpeg USB Device Discovery
+# ------------------------------------------------------------------------------
+/api/ffmpeg/devices:
+    get:
+      # ------------------------------------------------------------------------
+      # FFmpeg USB Device Discovery
+      # ------------------------------------------------------------------------
+      # Discovers USB video and audio devices available on the system via
+      # FFmpeg. This includes webcams, capture cards, USB microphones, and
+      # other multimedia devices that FFmpeg can access through system
+      # APIs (V4L2 on Linux, DirectShow on Windows, AVFoundation on macOS).
+      #
+      # Returns a list of devices with their capabilities and supported
+      # formats, enabling easy configuration of local hardware as video
+      # sources in go2rtc.
+      # ------------------------------------------------------------------------
+      summary: FFmpeg USB devices discovery
+      description: "[Source: FFmpeg Device](https://github.com/AlexxIT/go2rtc#source-ffmpeg-device)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# FFmpeg Hardware Acceleration Discovery
+# ------------------------------------------------------------------------------
+/api/ffmpeg/hardware:
+    get:
+      # ------------------------------------------------------------------------
+      # FFmpeg Hardware Acceleration Discovery
+      # ------------------------------------------------------------------------
+      # Detects available hardware acceleration capabilities for FFmpeg
+      # on the current system. This includes GPU-accelerated codecs (NVENC,
+      # QSV, VAAPI, VDPAU, etc.) and other hardware-specific optimizations.
+      #
+      # Returns information about supported hardware codecs, their
+      # capabilities, and configuration requirements. Essential for optimizing
+      # transcoding performance and reducing CPU load in go2rtc deployments.
+      # ------------------------------------------------------------------------
+      summary: FFmpeg hardware transcoding discovery
+      description: "[Hardware acceleration](https://github.com/AlexxIT/go2rtc/wiki/Hardware-acceleration)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# Home Assistant Camera Discovery
+# ------------------------------------------------------------------------------
+/api/hass:
+    get:
+      # ------------------------------------------------------------------------
+      # Home Assistant Camera Discovery
+      # ------------------------------------------------------------------------
+      # Discovers cameras available in a Home Assistant instance. This endpoint
+      # queries the Home Assistant API to retrieve a list of configured camera
+      # entities and their stream URLs. Requires proper Home Assistant
+      # integration configuration with valid authentication.
+      #
+      # Enables seamless integration between go2rtc and Home Assistant,
+      # allowing Home Assistant camera streams to be processed and redistributed
+      # through go2rtc's streaming capabilities.
+      # ------------------------------------------------------------------------
+      summary: Home Assistant cameras discovery
+      description: "[Source: Hass](https://github.com/AlexxIT/go2rtc#source-hass)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# HomeKit Camera Discovery
+# ------------------------------------------------------------------------------
+/api/homekit:
+    get:
+      # ------------------------------------------------------------------------
+      # HomeKit Camera Discovery
+      # ------------------------------------------------------------------------
+      # Discovers HomeKit-compatible cameras accessible to the system. This
+      # endpoint interacts with HomeKit APIs to find cameras that support
+      # the HomeKit Camera Protocol. Requires proper HomeKit pairing and
+      # permissions.
+      #
+      # Returns camera details including unique identifiers, capabilities,
+      # and connection information for integrating HomeKit cameras as
+      # sources in go2rtc.
+      # ------------------------------------------------------------------------
+      summary: HomeKit cameras discovery
+      description: "[Source: HomeKit](https://github.com/AlexxIT/go2rtc#source-homekit)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+# ------------------------------------------------------------------------------
+# Nest Camera Discovery
+# ------------------------------------------------------------------------------
+/api/nest:
+    get:
+      # ------------------------------------------------------------------------
+      # Nest Camera Discovery
+      # ------------------------------------------------------------------------
+      # Discovers Nest cameras associated with a Google/Nest account. This
+      # endpoint queries the Nest API (or Google Smart Home API) to retrieve
+      # a list of available Nest cameras and their streaming endpoints.
+      # Requires appropriate authentication with Google/Nest services.
+      #
+      # Enables integration of Nest camera streams into go2rtc for processing
+      # and redistribution to other clients and formats.
+      # ------------------------------------------------------------------------
+      summary: Nest cameras discovery
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+
+
+
+
+/api/onvif:
+    # GET /api/onvif
+    # Discover ONVIF cameras on the network via WS-Discovery
+    # Returns list of cameras with ONVIF URLs
+    get:
+      summary: ONVIF cameras discovery
+      description: "[Source: ONVIF](https://github.com/AlexxIT/go2rtc#source-onvif)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+    
+    # GET /api/onvif?src=onvif://user:pass@host
+    # Get available profiles/streams from a specific ONVIF camera
+    # Returns list of video profiles and snapshots available on camera
+    get:
+      summary: ONVIF camera profiles
+      description: "Get available video profiles from ONVIF camera"
+      tags: [ Discovery ]
+      parameters:
+        - name: src
+          in: query
+          description: ONVIF camera URL (optional)
+          required: false
+          schema: { type: string }
+          example: "onvif://user:pass@192.168.1.50"
+      responses:
+            default:
+              description: Default response
+
+/onvif/:
+    # POST /onvif/* (any path under /onvif/)
+    # ONVIF server implementation
+    # Handles SOAP/XML requests from ONVIF clients
+    # Implements ONVIF Device Service for compatibility with:
+    # - Home Assistant
+    # - NVR systems
+    # - ONVIF client applications
+    # Supports operations: GetDeviceInformation, GetCapabilities, GetProfiles, GetStreamUri, etc.
+    get:
+      summary: ONVIF server implementation
+      description: Simple realisation of the ONVIF protocol. Accepts any suburl requests
+      tags: [ ONVIF ]
+      responses:
+            default:
+              description: Default response
+
+  # ============================================
+  # RTSPTORWEBRTC SERVER
+  # ============================================
+  # RTSPtoWebRTC is a Home Assistant integration protocol
+  # Allows converting RTSP streams to WebRTC for browser viewing
+  # Simplifies setup for Home Assistant users
+  # Reference: https://www.home-assistant.io/integrations/rtsp_to_webrtc/
+  
+/stream/:
+    # GET /stream/
+    # RTSPtoWebRTC server endpoint
+    # Simple API for Home Assistant integration
+    # Converts RTSP camera streams to WebRTC format
+    get:
+      summary: RTSPtoWebRTC server implementation
+      description: Simple API for support [RTSPtoWebRTC](https://www.home-assistant.io/integrations/rtsp_to_webrtc/) integration
+      tags: [ RTSPtoWebRTC ]
+      responses:
+            default:
+              description: Default response
+
+  # ============================================
+  # WEBTORRENT PEER-TO-PEER STREAMING
+  # ============================================
+  # WebTorrent enables decentralized video sharing
+  # Benefits:
+  # - Reduces bandwidth (peers share video with each other)
+  # - No central CDN needed
+  # - Works over WebSocket (browser-compatible)
+  # Shares are password-protected and time-limited
+  # Each share gets a unique ID and password
+  
+/api/webtorrent?src={src}:
+    # GET /api/webtorrent?src=camera1
+    # Get share info for a specific stream
+    # Returns: share ID and password for peer access
+    # Magnet link format: webtorrent:?share=ABC123&pwd=xyz789
+    get:
+      summary: Get WebTorrent share info
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200: { $ref: "#/components/responses/webtorrent" }
+    
+    # POST /api/webtorrent?src=camera1
+    # Create new peer-to-peer share for a stream
+    # Server generates random share ID and password
+    # Returns credentials for peers to join
+    # Use case: Share stream via magnet link
+    post:
+      summary: Add WebTorrent share
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200: { $ref: "#/components/responses/webtorrent" }
+
+    # DELETE /api/webtorrent?src=camera1
+    # Stop sharing a stream via WebTorrent
+    # Removes share from tracker, existing peers can finish downloading
+    # Use case: Remove temporary stream access
+    delete:
+      summary: Delete WebTorrent share
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+            default:
+              description: Default response
+
+/api/webtorrent:
+    # GET /api/webtorrent
+    # List all active WebTorrent shares
+    # Shows which streams are being shared peer-to-peer
+    # Returns share IDs and passwords for all active shares
+    # Use case: Monitor active P2P streams
+    get:
+      summary: Get all WebTorrent shares info
+      tags: [ WebTorrent ]
+      responses:
+        200: { $ref: "#/components/responses/discovery" }
+
+  # ============================================
+  # DEBUG ENDPOINTS
+  # ============================================
+  # Diagnostic tools for troubleshooting and performance analysis
+  # Should only be exposed in development/secure environments
+  
+/api/stack:
+    # GET /api/stack
+    # Show all active goroutines and stack traces
+    # Goroutines are Go's lightweight threads
+    # Useful for:
+    # - Detecting deadlocks
+    # - Finding goroutine leaks
+    # - Performance analysis
+    # - Memory profiling
+    # Output: Full stack trace of all running Go routines
+    # WARNING: May contain sensitive information, restrict access in production
+    get:
+      summary: Show list unknown goroutines
+      tags: [ Debug ]
+      responses:
+        200:
+          description: ""
+          content: { text/plain: { example: "" } }
+
+  # ============================================
+  # ADDITIONAL DISCOVERY ENDPOINTS
+  # ============================================
+  # These endpoints discover various types of cameras and devices
+  # Implement auto-discovery for different protocols and vendors
+  
+/api/dvrip:
+    # GET /api/dvrip
+    # Discover DVRIP cameras (Chinese DVR/NVR systems)
+    # DVRIP is proprietary protocol used by many Chinese surveillance devices
+    # Supports: Hikvision, Dahua, Uniview, and similar brands
+    # Auto-scans network for DVRIP-compatible devices
+    get:
+      summary: DVRIP cameras discovery
+      description: "[Source: DVRIP](https://github.com/AlexxIT/go2rtc#source-dvrip)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/ffmpeg/devices:
+    # GET /api/ffmpeg/devices
+    # Discover USB devices and screen capture sources
+    # Lists available:
+    # - USB cameras (webcams)
+    # - Audio devices (microphones, speakers)
+    # - Screen capture (desktop, displays)
+    # Allows using local devices as stream sources
+    # Example use: Stream webcam to RTSP, stream desktop sharing
+    get:
+      summary: FFmpeg USB devices discovery
+      description: "[Source: FFmpeg Device](https://github.com/AlexxIT/go2rtc#source-ffmpeg-device)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/ffmpeg/hardware:
+    # GET /api/ffmpeg/hardware
+    # Discover hardware video acceleration capabilities
+    # Checks for:
+    # - NVIDIA GPU (NVENC/NVDEC)
+    # - Intel QuickSync (QSV)
+    # - Apple VideoToolbox (Mac)
+    # - AMD VCE/UVCE
+    # - Other hardware encoders/decoders
+    # Use case: Enable GPU acceleration for transcoding
+    # Performance: Hardware acceleration is 10-100x faster than CPU
+    get:
+      summary: FFmpeg hardware transcoding discovery
+      description: "[Hardware acceleration](https://github.com/AlexxIT/go2rtc/wiki/Hardware-acceleration)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/hass:
+    # GET /api/hass
+    # List cameras available in Home Assistant
+    # Requires: Home Assistant integration enabled
+    # Returns: Camera entities from Home Assistant instance
+    # Use case: Restream Home Assistant cameras through go2rtc
+    # Example: Use HA doorbell camera as source for this go2rtc instance
+    get:
+      summary: Home Assistant cameras discovery
+      description: "[Source: Hass](https://github.com/AlexxIT/go2rtc#source-hass)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/homekit:
+    # GET /api/homekit
+    # Discover HomeKit-compatible cameras on network
+    # Uses Bonjour/mDNS to find HomeKit Secure Video cameras
+    # Supports: Apple cameras, Logitech, Eve, and other HomeKit devices
+    # Use case: Stream HomeKit cameras to non-HomeKit clients
+    get:
+      summary: HomeKit cameras discovery
+      description: "[Source: HomeKit](https://github.com/AlexxIT/go2rtc#source-homekit)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/nest:
+    # GET /api/nest
+    # Discover Google Nest cameras
+    # Requires: Nest API credentials configured
+    # Returns: Available Nest camera feeds
+    # Use case: Integrate Nest cameras with local system
+    # Adds: Snapshot, recording, and cloud integration features
+    get:
+      summary: Nest cameras discovery
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+/api/roborock:
+    # GET /api/roborock
+    # Discover Roborock vacuum robots with cameras
+    # Some Roborock models include built-in cameras
+    # Example: S7 MaxV has front-facing camera
+    # Use case: Monitor robot vacuum location and surroundings
+    # Shows: Camera feed from vacuum robot
+    get:
+      summary: Roborock vacuums discovery
+      description: "[Source: Roborock](https://github.com/AlexxIT/go2rtc#source-roborock)"
+      tags: [ Discovery ]
+      responses:
+            default:
+              description: Default response
+
+
+
+# ============================================
+# ONVIF SERVER IMPLEMENTATION
+# ============================================
+# ONVIF (Open Network Video Interface Forum) is a standard protocol used by IP cameras
+# for discovery, configuration, media streaming, and device management.
+#
+# IMPORTANT:
+# - go2rtc does NOT implement the full ONVIF spec.
+# - This endpoint provides a *minimal / lightweight ONVIF server*.
+# - Its primary goal is COMPATIBILITY, not full ONVIF compliance.
+#
+# Typical use cases:
+# - Allow ONVIF clients (NVRs, VMS software, Home Assistant, camera tools)
+#   to "detect" go2rtc as an ONVIF-capable device.
+# - Allow cameras or tools that REQUIRE ONVIF endpoints to interact with streams.
+#
+# Key concept:
+# - This endpoint accepts ANY sub-path after /onvif/
+# - go2rtc internally routes and responds to ONVIF SOAP/XML requests.
+# - The OpenAPI spec cannot enumerate all sub-URLs, so it is defined as a catch-all.
+
+/onvif/:
+    get:
+      summary: ONVIF server implementation
+
+      description: |
+        Simple realisation of the ONVIF protocol.
+        Accepts any suburl requests.
+
+        Explanation:
+        - This endpoint acts as a generic ONVIF handler.
+        - Clients may request paths like:
+            /onvif/device_service
+            /onvif/media_service
+            /onvif/events_service
+        - go2rtc parses the incoming SOAP/XML payload and responds accordingly.
+
+      tags: [ ONVIF ]
+
+      responses:
+        default:
+          description: Default response
+          # Response details depend entirely on the ONVIF action requested.
+          #
+          # Common behaviors:
+          # - Returns SOAP XML responses (NOT JSON).
+          # - Content-Type is typically application/soap+xml or text/xml.
+          #
+          # Practical notes:
+          # - Swagger/OpenAPI cannot fully model SOAP-based APIs.
+          # - This endpoint exists mostly for interoperability, not REST usage.
+          #
+          # Typical clients:
+          # - ONVIF Device Manager
+          # - Surveillance/NVR software
+          # - Home Assistant ONVIF integration
+          #
+          # Security considerations:
+          # - ONVIF often includes authentication (Digest / WS-Security).
+          # - Exposing this endpoint publicly can leak camera topology.
+          #
+          # Debugging tip:
+          # - Use tcpdump or Wireshark to inspect ONVIF SOAP traffic.
+          # - ONVIF problems are usually XML/schema related, not HTTP errors.
+
+# ============================================
+# RTSP → WEBRTC BRIDGE ENDPOINT
+# ============================================
+# This endpoint exists specifically to support integrations that expect
+# a very simple HTTP API for converting RTSP streams into WebRTC streams.
+#
+# It is MOST COMMONLY used by:
+# - Home Assistant's "RTSP to WebRTC" integration
+#   https://www.home-assistant.io/integrations/rtsp_to_webrtc/
+#
+# Design philosophy:
+# - Extremely simple
+# - Minimal REST surface
+# - Hide complex WebRTC signaling logic behind a single endpoint
+
+/stream/:
+    get:
+      summary: RTSPtoWebRTC server implementation
+
+      description: |
+        Simple API for support RTSPtoWebRTC integration.
+
+        Explanation:
+        - This endpoint provides a WebRTC-compatible stream
+          derived from an RTSP source.
+        - It handles:
+            - SDP negotiation
+            - ICE candidates
+            - Media pipeline setup
+        - Clients do NOT need to understand WebRTC internals.
+
+      tags: [ RTSPtoWebRTC ]
+
+      responses:
+        default:
+          description: Default response
+          # Response type:
+          # - Usually NOT JSON.
+          # - Often returns SDP or WebRTC signaling data.
+          #
+          # Practical behavior:
+          # - Browser or Home Assistant calls this endpoint.
+          # - go2rtc internally:
+          #     1) Connects to RTSP source
+          #     2) Decodes packets if needed
+          #     3) Repackages stream for WebRTC
+          #     4) Sends back WebRTC-compatible response
+          #
+          # Why this endpoint exists separately:
+          # - WebRTC signaling does not map cleanly to REST APIs.
+          # - This endpoint acts as a compatibility shim.
+          #
+          # Common pitfalls:
+          # - Requires UDP ports for ICE
+          # - NAT/firewall issues are the #1 cause of failure
+          # - Browser codec support must match stream codecs
+          #
+          # Debug tip:
+          # - Check browser console WebRTC logs
+          # - Verify STUN/TURN configuration if remote access fails
+
+# ============================================
+# WEBTORRENT – STREAM SHARING (PER-STREAM)
+# ============================================
+# WebTorrent allows peer-to-peer distribution of live or recorded streams.
+#
+# Conceptually:
+# - go2rtc becomes a WebTorrent seeder.
+# - Clients download stream data via WebRTC data channels.
+# - This reduces server bandwidth usage when many viewers exist.
+#
+# Key idea:
+# - Each stream can be "shared" as a torrent.
+# - This endpoint manages sharing for a SINGLE stream.
+
+/api/webtorrent?src={src}:
+    # ----------------------------
+    # GET: Retrieve WebTorrent share info
+    # ----------------------------
+    # What it does:
+    # - Returns the torrent/share information for a given stream.
+    # - Does NOT create the share if it doesn't exist.
+    #
+    # Typical usage:
+    # - Client wants to join an existing WebTorrent swarm.
+    # - UI wants to display magnet/share info.
+    get:
+      summary: Get WebTorrent share info
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200:
+          $ref: "#/components/responses/webtorrent"
+          # Example response:
+          # {
+          #   "share": "AKDypPy4zz",
+          #   "pwd": "H0Km1HLTTP"
+          # }
+          #
+          # Meaning:
+          # - share: Unique identifier for torrent swarm
+          # - pwd: Optional password for access control
+
+    # ----------------------------
+    # POST: Add WebTorrent share
+    # ----------------------------
+    # What it does:
+    # - Creates a WebTorrent share for the specified stream.
+    # - Starts seeding the stream data.
+    #
+    # Side effects:
+    # - go2rtc allocates WebTorrent resources.
+    # - Clients can now connect peer-to-peer.
+    #
+    # Use case:
+    # - Start sharing a stream to many users without overloading server bandwidth.
+    post:
+      summary: Add WebTorrent share
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        200:
+          $ref: "#/components/responses/webtorrent"
+          # Behavior notes:
+          # - If share already exists, server may return existing info.
+          # - Password may be auto-generated.
+          #
+          # Performance notes:
+          # - Initial seeding still requires server bandwidth.
+          # - Bandwidth savings increase as more peers join.
+
+    # ----------------------------
+    # DELETE: Remove WebTorrent share
+    # ----------------------------
+    # What it does:
+    # - Stops sharing the specified stream via WebTorrent.
+    # - Disconnects swarm participation.
+    #
+    # Side effects:
+    # - Existing peers may lose connection or need fallback.
+    delete:
+      summary: Delete WebTorrent share
+      tags: [ WebTorrent ]
+      parameters:
+        - $ref: "#/components/parameters/stream_src_path"
+      responses:
+        default:
+          description: Default response
+          #
+          # Notes:
+          # - This does NOT delete the stream itself.
+          # - Only disables WebTorrent sharing.
+          #
+          # Use case:
+          # - Reduce resource usage
+          # - Disable P2P distribution for sensitive streams
+
+# ============================================
+# WEBTORRENT – GLOBAL INFORMATION
+# ============================================
+# This endpoint provides discovery-style information for ALL WebTorrent shares.
+
+/api/webtorrent:
+    get:
+      summary: Get all WebTorrent shares info
+      tags: [ WebTorrent ]
+      responses:
+        200:
+          $ref: "#/components/responses/discovery"
+          #
+          # Example:
+          # {
+          #   "streams": [
+          #     { "name": "camera1", "url": "magnet:?xt=..." }
+          #   ]
+          # }
+          #
+          # Use cases:
+          # - Admin UI listing all shared streams
+          # - Monitoring active P2P distributions
+          #
+          # Operational note:
+          # - Useful to audit which streams are exposed via WebTorrent.
+
+# ============================================
+# DEBUGGING – GOROUTINE STACK INSPECTION
+# ============================================
+# This endpoint is intended STRICTLY for debugging and development.
+#
+# It exposes internal Go runtime information:
+# - Goroutines are lightweight threads managed by Go.
+# - "Unknown goroutines" typically mean:
+#     - Leaked goroutines
+#     - Deadlocks
+#     - Stuck network operations
+#
+# WARNING:
+# - This endpoint should NEVER be exposed publicly.
+# - Stack traces can reveal internal logic and memory addresses.
+
+/api/stack:
+    get:
+      summary: Show list unknown goroutines
+      tags: [ Debug ]
+      responses:
+        200:
+          description: ""
+          content: { text/plain: { example: "" } }
+              #
+              # Response content:
+              # - Plain-text stack traces
+              # - Similar to Go's runtime.Stack output
+              #
+              # Typical usage:
+              # - Developer notices increasing memory usage
+              # - Calls /api/stack
+              # - Inspects goroutines stuck in network reads, ffmpeg calls, or stream loops
+              #
+              # Example output (conceptual):
+              # goroutine 1234 [IO wait]:
+              # net.(*pollDesc).wait(...)
+              #
+              # Debug workflow:
+              # 1) Call /api/stack
+              # 2) Identify repeating goroutines
+              # 3) Match stack traces to source code
+              # 4) Fix leaks or deadlocks
+              #
+              # Production advice:
+              # - Protect with firewall or disable entirely
+              # - Use only during incident response or debugging

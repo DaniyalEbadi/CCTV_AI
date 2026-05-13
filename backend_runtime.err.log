@@ -1,0 +1,47 @@
+INFO:     Started server process [48044]
+INFO:     Waiting for application startup.
+2026-02-19 10:56:37,246 - __main__ - INFO - === Backend Starting ===
+2026-02-19 10:56:37,246 - backend.config.settings - INFO - Backend running on 127.0.0.1:8000
+2026-02-19 10:56:37,246 - backend.config.settings - INFO - Inference device: cpu
+2026-02-19 10:56:37,247 - backend.config.settings - INFO - Confidence threshold: 0.5
+2026-02-19 10:56:37,247 - backend.config.settings - INFO - go2rtc API: http://127.0.0.1:1984
+2026-02-19 10:56:37,247 - backend.config.settings - INFO - go2rtc RTSP: rtsp://127.0.0.1:8554
+2026-02-19 10:56:37,248 - backend.config.settings - INFO - Enabled detectors: ['person', 'vehicle', 'motion']
+2026-02-19 10:56:37,248 - __main__ - INFO - Initializing detection pipeline with 3 detectors...
+2026-02-19 10:56:37,249 - backend.detectors.license_plate.detector - WARNING - EasyOCR not installed. Install with: pip install easyocr
+2026-02-19 10:56:37,249 - backend.services.detection_pipeline - INFO - DetectionPipeline initialized with detectors: ['person', 'vehicle', 'face', 'license_plate', 'motion']
+2026-02-19 10:56:37,333 - backend.detectors.person.detector - INFO - PersonDetector loaded on cpu | model=yolov8s.pt imgsz=640 iou=0.45
+2026-02-19 10:56:37,334 - backend.services.detection_pipeline - INFO - Loaded person detector
+2026-02-19 10:56:37,404 - backend.detectors.vehicle.detector - INFO - VehicleDetector loaded on cpu | model=yolov8s.pt imgsz=640 iou=0.45
+2026-02-19 10:56:37,404 - backend.services.detection_pipeline - INFO - Loaded vehicle detector
+2026-02-19 10:56:37,405 - backend.services.detection_pipeline - INFO - Skipping disabled detector at startup: face
+2026-02-19 10:56:37,405 - backend.services.detection_pipeline - INFO - Skipping disabled detector at startup: license_plate
+2026-02-19 10:56:37,405 - backend.detectors.motion.detector - INFO - MotionDetector initialized (background subtraction)
+2026-02-19 10:56:37,405 - backend.services.detection_pipeline - INFO - Loaded motion detector
+2026-02-19 10:56:37,406 - __main__ - INFO - \u2713 Detection pipeline ready
+2026-02-19 10:56:37,406 - __main__ - INFO - Initializing camera manager from go2rtc.yaml...
+2026-02-19 10:56:37,411 - backend.services.camera_manager - INFO - Loaded camera: info
+2026-02-19 10:56:37,411 - backend.services.camera_manager - INFO - Loaded camera: web4dev
+2026-02-19 10:56:37,411 - backend.services.camera_manager - INFO - Loaded camera: danial ebadi
+2026-02-19 10:56:37,412 - backend.services.camera_manager - INFO - Loaded camera: flv
+2026-02-19 10:56:37,412 - backend.services.camera_manager - INFO - Loaded camera: camera
+2026-02-19 10:56:37,413 - backend.services.camera_manager - INFO - Loaded camera: new
+2026-02-19 10:56:37,413 - backend.services.camera_manager - INFO - Loaded camera: DD
+2026-02-19 10:56:37,413 - backend.services.camera_manager - INFO - Parsed 7 cameras from go2rtc config
+2026-02-19 10:56:37,414 - backend.services.camera_manager - INFO - Loaded 7 cameras into manager
+2026-02-19 10:56:37,414 - __main__ - INFO - \u2713 Camera manager ready with 7 cameras
+2026-02-19 10:56:37,414 - __main__ - INFO - === Backend Ready ===
+
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-02-19 10:56:37,644 - backend.api.routes - INFO - No frame yet | camera=DD status=idle
+2026-02-19 10:56:37,645 - backend.api.routes - INFO - Auto-start camera for detect | camera=DD
+2026-02-19 10:56:37,645 - backend.services.camera_manager - INFO - Starting camera stream | camera=DD url=rtsp://127.0.0.1:8554/DD
+2026-02-19 10:56:37,650 - backend.core.frame_source - INFO - Starting FFmpeg for rtsp://127.0.0.1:8554/DD
+2026-02-19 10:56:37,659 - backend.core.frame_source - INFO - Frame source started | url=rtsp://127.0.0.1:8554/DD
+2026-02-19 10:56:37,860 - backend.services.camera_manager - INFO - Started frame source for camera: DD
+2026-02-19 10:56:38,660 - backend.core.frame_source - INFO - Frame reader loop starting | fps=5, 640x360
+2026-02-19 10:56:39,659 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-19 10:56:41,649 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-19 10:56:43,642 - backend.api.routes - INFO - No frame yet | camera=DD status=running
+2026-02-19 10:56:44,184 - backend.core.frame_source - INFO - First frame received! 640x360

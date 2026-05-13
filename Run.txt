@@ -1,0 +1,12 @@
+.\go2rtc.exe -c go2rtc.yaml
+
+$env:YOLO_CONFIG_DIR="C:\Users\Dani\Desktop\go2rtc-master\backend\.ultralytics"
+python -m backend.main
+
+python backend/template/server.py
+
+
+
+
+--force kill 
+taskkill /IM go2rtc.exe /F
