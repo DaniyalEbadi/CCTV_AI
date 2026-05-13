@@ -1,0 +1,5 @@
+# Mark the go2rtc folder as vendored code (not part of my main project)
+go2rtc/** linguist-vendored
+
+# If you have other false languages, do the same:
+# static/lib/** linguist-vendored
